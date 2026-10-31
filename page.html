@@ -997,6 +997,8 @@ body.role-b .rtog .a{order:2}
 .talk.hit .ttag.sel{background:#e0a800;color:#fff;border-color:#e0a800}
 .talk.miss{opacity:.45}
 .talk .ttag.sel{background:var(--accent);color:#fff}
+/* フロート表示中はフッター（表示ボタン）を隠す */
+body:has(.sheet:not([hidden])) .rtog{display:none}
 </style>
 <script>
 (function(){
