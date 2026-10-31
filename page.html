@@ -138,7 +138,7 @@ table{border-collapse:separate;width:100%;min-width:760px;table-layout:fixed;bor
   .rh small{display:block;width:100%}
   .slot .sess{padding:5px 6px}
 }
-.sheet{position:fixed;inset:0;z-index:30;background:rgba(20,22,50,.35);display:flex;justify-content:center;padding:0 max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));align-items:flex-start;padding-bottom:0}
+.sheet{position:fixed;inset:0;z-index:30;background:transparent;display:flex;justify-content:center;padding:0 max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));align-items:flex-start;padding-bottom:0}
 .sheetin{width:min(720px,100%);display:flex;gap:6px;flex-direction:column;max-height:86vh}
 .sheetin .ptitle{font-size:1.08rem;line-height:1.45}
 .sheetin .ptitle .ja{font-size:1rem}
@@ -587,6 +587,8 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
   .tth,.ttb{grid-template-columns:18px repeat(var(--nr,4),minmax(0,1fr));gap:3px}
   .tick{font-size:.7rem}
 }
+.sdim{position:fixed;inset:0;background:rgba(20,22,50,.38);pointer-events:none}
+.sheetin{backface-visibility:hidden}
 </style>
 
 <div class="wrap">
@@ -607,7 +609,7 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
   <div id="out"></div>
   <button type="button" class="nowbtn" id="nowbtn" aria-label="いまの時刻へ移動"><span class="dot"></span>いま</button>
   <div class="toast" id="toast" hidden></div>
-  <div id="sheet" class="sheet" hidden><div class="sheetin"><button type="button" class="sclose" id="sclose">閉じる ×</button><div class="panel" id="sbody"></div></div></div>
+  <div id="sheet" class="sheet" hidden><div class="sdim"></div><div class="sheetin"><button type="button" class="sclose" id="sclose">閉じる ×</button><div class="panel" id="sbody"></div></div></div>
 </div>
 
 <script type="application/json" id="state">{"plan":{"S2":{"a":true},"ES1":{"a":false,"b":false},"ES4":{"b":false,"a":true},"S16":{"a":true},"IL5":{"a":true,"b":false},"ES7":{"a":true},"S12":{"a":true},"S17":{"b":false,"a":true},"S4":{"a":true},"IL1":{"a":true,"b":false},"IL2":{"a":true,"b":false},"IL3":{"a":true,"b":false},"ES2":{"a":true,"b":false},"S7":{"a":true},"S5":{"b":false,"a":true},"ES6":{"b":false,"a":true},"EL1":{"a":true},"S10":{"b":false,"a":false},"IL4":{"a":true},"S14":{"a":true},"ES8":{"a":true},"S9":{"a":false},"ES3":{"a":true},"S1":{"a":true,"b":false},"S13":{"a":true,"b":false},"S6":{"b":false},"S15":{"a":true},"LS3":{"b":false},"OS11":{"a":true}},"labels":{"a":"すいすい","b":"AT"},"ts":1793359748999}</script>
@@ -719,25 +721,22 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
       let p=`${o.s.kind==='シンポジウム'?`<div class="ptitle">${hl(o.s.session.replace(/^S\d+\s*/,''),terms)}${SJA[o.s.code.split('-')[0]]?`<div class="ja">${hl(SJA[o.s.code.split('-')[0]],terms)}</div>`:''}</div>`:''}<div class="chairs">${esc(o.s.kind)}　${esc(o.s.date)} ${esc(o.s.time)}　${esc(o.s.room)}${o.s.chairs?`　座長：${hl(o.s.chairs,terms)}`:''}</div><ul class="talks">`;
       const tagsOf=x=>{const t=tagsOfTalk(x);return t.length?`<div class="ttags">${t.map(t=>`<span class="ttag${TSEL.has(t.key)?' sel':''}">${esc(t.label)}</span>`).join('')}</div>`:''};
       o.talks.forEach(x=>{const hit=filtering?match(x,terms):null;p+=`<li class="talk${hit===true?' hit':hit===false?' miss':''}"><span class="tc">${esc(x.code)}</span>${hl(x.title,terms)}${x.ja?`<div class="ja">${hl(x.ja,terms)}</div>`:''}${x.speaker||x.affil?`<div class="who">${hl(x.speaker,terms)}${x.affil?`（${hl(x.affil,terms)}）`:''}</div>`:''}${tagsOf(x)}${(x.abs||x.abs_ja||x.absja)?`<details class="tabs2"><summary>要旨</summary><div class="abs">${hl(x.abs_ja||x.absja||x.abs,terms)}</div></details>`:''}</li>`});
-      $('sbody').innerHTML=p+'</ul>';$('sbody').dataset.kind=KIND[o.s.kind]||'';sh.hidden=false;
+      $('sbody').innerHTML='<div class="sbin">'+p+'</ul></div>';$('sbody').dataset.kind=KIND[o.s.kind]||'';sh.hidden=false;
       const si=sh.firstElementChild;si.style.marginTop='0px';
       (()=>{const btn=out.querySelector(`.sess[aria-expanded="true"]`);const vh=window.innerHeight,h=si.offsetHeight;let top;
         if(btn){const r=btn.getBoundingClientRect();top=r.bottom+8;if(top+h>vh-12){const up=r.top-h-8;top=up>=12?up:Math.max(12,vh-h-12)}}else top=Math.max(12,(vh-h)/2);
         si.style.marginTop=Math.round(top)+'px';
         if(animKey!==openKey){animKey=openKey;if(!calm&&si.animate){const sr=si.getBoundingClientRect();si.style.transformOrigin='50% 50%';
-          if(btn){const r=btn.getBoundingClientRect();const dx=(r.left+r.width/2)-(sr.left+sr.width/2),dy=(r.top+r.height/2)-(sr.top+sr.height/2),sx=Math.max(.05,r.width/sr.width),sy=Math.max(.05,r.height/sr.height);
-            const T=(f,x,y)=>`translate(${dx*f}px,${dy*f}px) scale(${x},${y})`;
-            const cs=getComputedStyle(btn),pn=$('sbody'),pbg=getComputedStyle(pn).backgroundColor,pbc=getComputedStyle(pn).borderTopColor;
-            // ghost: a copy of the tapped cell that lifts off and stretches toward the float
-            const g=btn.cloneNode(true);g.removeAttribute('data-k');Object.assign(g.style,{position:'fixed',left:r.left+'px',top:r.top+'px',width:r.width+'px',height:r.height+'px',minHeight:'0',maxHeight:r.height+'px',margin:0,zIndex:40,pointerEvents:'none',boxShadow:'0 12px 30px -8px rgba(0,0,0,.45)',transformOrigin:'50% 50%'});document.body.appendChild(g);
-            const gx=-dx,gy=-dy;
-            g.animate([{transform:'none',opacity:1},{transform:'translateY(-6px) scale(1.12,1.12)',opacity:1,offset:.15},{transform:`translate(${gx*.35}px,${gy*.35}px) scale(.85,1.45)`,opacity:1,offset:.35},{transform:`translate(${gx*.75}px,${gy*.75}px) scale(${1/sx*.7},${1/sy*.6})`,opacity:0}],{duration:520,easing:'cubic-bezier(.4,0,.3,1)'}).onfinish=()=>g.remove();
-            si.animate([{transform:T(1,sx,sy),opacity:0},{transform:T(1,sx*1.12,sy*1.12),opacity:0,offset:.12},{transform:T(.6,sx+(1-sx)*.3,sy+(1-sy)*.9),opacity:1,offset:.34},{transform:T(0,1.07,.88),offset:.55},{transform:T(0,.95,1.07),offset:.7},{transform:T(0,1.02,.98),offset:.84},{transform:'none'}],{duration:860,easing:'cubic-bezier(.3,.8,.3,1)'});
-            pn.animate([{backgroundColor:cs.backgroundColor,borderColor:cs.borderTopColor},{backgroundColor:cs.backgroundColor,offset:.3},{backgroundColor:pbg,borderColor:pbc,offset:.6},{backgroundColor:pbg}],{duration:860});
-            btn.animate([{transform:'scale(1)'},{transform:'scale(.88,1.1)',offset:.2},{transform:'scale(1.04,.96)',offset:.5},{transform:'scale(1)'}],{duration:520,easing:'ease-out'});
-            sh.animate([{backgroundColor:'rgba(20,22,50,0)'},{backgroundColor:'rgba(20,22,50,0)',offset:.25},{}],{duration:500})}
-          else si.animate([{transform:'scale(.12,.04)',opacity:.3},{transform:'scale(1.1,.82)',opacity:1,offset:.32},{transform:'scale(.92,1.1)',offset:.52},{transform:'scale(1.04,.96)',offset:.7},{transform:'none'}],{duration:720,easing:'cubic-bezier(.25,.9,.35,1)'});
-          [...$('sbody').children].forEach(c=>c.animate([{opacity:0},{opacity:0,offset:.45},{opacity:1}],{duration:700}))}}})();
+          // ニュルン：ばね（減衰振動）で細かくキーフレームを作り、変形だけを動かす（色・影・影響の大きい再描画は動かさない）
+          const dim=sh.querySelector('.sdim'),pn=$('sbody'),inner=pn.querySelector('.sbin');
+          si.style.willChange='transform';
+          let dx=0,dy=0,sx=.12,sy=.06;
+          if(btn){const r=btn.getBoundingClientRect();dx=(r.left+r.width/2)-(sr.left+sr.width/2);dy=(r.top+r.height/2)-(sr.top+sr.height/2);sx=Math.max(.05,r.width/sr.width);sy=Math.max(.05,r.height/sr.height);
+            btn.animate([{transform:'scale(1)'},{transform:'scale(.9,1.08)',offset:.25},{transform:'scale(1.03,.97)',offset:.6},{transform:'scale(1)'}],{duration:480,easing:'ease-out'})}
+          const kf=springKF({dx,dy,sx,sy});
+          const an=si.animate(kf,{duration:760,easing:'linear'});an.onfinish=()=>{si.style.willChange=''};
+          if(dim)dim.animate([{opacity:0},{opacity:1}],{duration:420,easing:'ease-out'});
+          if(inner)inner.animate([{opacity:0},{opacity:0,offset:.3},{opacity:1}],{duration:600,easing:'ease-out'})}}})();
     } else {sh.hidden=true;animKey=null}
   }
   // ---- saving: the page republishes itself with the state embedded ----
@@ -810,13 +809,27 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
     if(calm||!si.animate){done();return}closing=true;
     const sr=si.getBoundingClientRect();let dx=0,dy=0,sx=.1,sy=.05;
     if(btn){const r=btn.getBoundingClientRect();dx=(r.left+r.width/2)-(sr.left+sr.width/2);dy=(r.top+r.height/2)-(sr.top+sr.height/2);sx=Math.max(.05,r.width/sr.width);sy=Math.max(.05,r.height/sr.height)}
-    const T=(f,x,y)=>`translate(${dx*f}px,${dy*f}px) scale(${x},${y})`;si.style.transformOrigin='50% 50%';
-    const pn=$('sbody'),cbg=btn?getComputedStyle(btn).backgroundColor:getComputedStyle(pn).backgroundColor;
-    [...pn.children].forEach(c=>c.animate([{opacity:1},{opacity:0,offset:.3},{opacity:0}],{duration:560,fill:'forwards'}));
-    pn.animate([{},{backgroundColor:cbg,offset:.45},{backgroundColor:cbg}],{duration:560,fill:'forwards'});
-    sh.animate([{},{backgroundColor:'rgba(20,22,50,0)'}],{duration:560,fill:'forwards'});
-    const a=si.animate([{transform:'none'},{transform:T(0,1.06,.9),offset:.16},{transform:T(0,.93,1.08),offset:.3},{transform:T(.5,sx+(1-sx)*.35,sy+(1-sy)*.9),offset:.6},{transform:T(.92,sx*.85,sy*1.2),offset:.85},{transform:T(1,sx,sy),opacity:.6}],{duration:560,easing:'cubic-bezier(.5,0,.7,.4)',fill:'forwards'});
-    a.onfinish=()=>{a.cancel();[...pn.children].forEach(c=>c.getAnimations().forEach(x=>x.cancel()));pn.getAnimations().forEach(x=>x.cancel());sh.getAnimations().forEach(x=>x.cancel());done()}}
+    si.style.transformOrigin='50% 50%';si.style.willChange='transform';
+    const dim=sh.querySelector('.sdim'),inner=$('sbody').querySelector('.sbin');
+    if(inner)inner.animate([{opacity:1},{opacity:0}],{duration:220,easing:'ease-in',fill:'forwards'});
+    if(dim)dim.animate([{opacity:1},{opacity:0}],{duration:420,easing:'ease-in',fill:'forwards'});
+    const a=si.animate(closeKF({dx,dy,sx,sy}),{duration:440,easing:'linear',fill:'forwards'});
+    a.onfinish=()=>{a.cancel();si.style.willChange='';if(inner)inner.getAnimations().forEach(x=>x.cancel());if(dim)dim.getAnimations().forEach(x=>x.cancel());done()}}
+  // ばねのキーフレーム（開く）: 位置と大きさを少し行き過ぎてから戻る。縦は横よりわずかに遅らせて「びよん」と伸びる感じに
+  function springKF({dx,dy,sx,sy}){const N=48,out=[];
+    const sp=(t,z,w)=>{const wd=w*Math.sqrt(1-z*z);return 1-Math.exp(-z*w*t)*(Math.cos(wd*t)+(z*w/wd)*Math.sin(wd*t))};
+    for(let i=0;i<=N;i++){const t=i/N;const px=sp(t,.62,14),py=sp(Math.max(0,t-.05),.5,15);
+      const f=1-px,x=sx+(1-sx)*px,y=sy+(1-sy)*py,o=Math.min(1,t/.22);
+      out.push({transform:`translate(${(dx*f).toFixed(1)}px,${(dy*f).toFixed(1)}px) scale(${x.toFixed(4)},${y.toFixed(4)})`,opacity:o.toFixed(3),offset:t})}
+    out[N].transform='none';out[N].opacity=1;return out}
+  // 閉じる: いったんふくらんでから、吸い込まれるように加速して戻る
+  function closeKF({dx,dy,sx,sy}){const N=36,out=[];
+    const ease=t=>t*t*(3-2*t);
+    for(let i=0;i<=N;i++){const t=i/N;let p;
+      if(t<.22){p=-.07*Math.sin(Math.PI*t/.22)}else{const u=(t-.22)/.78;p=Math.pow(u,1.9)}
+      const px=p,py=t<.22?p*1.4:p;const f=Math.max(0,px),x=1+(sx-1)*Math.max(0,px)-(px<0?px:0)*.6,y=1+(sy-1)*Math.max(0,py)-(py<0?py:0)*1.2;
+      out.push({transform:`translate(${(dx*f).toFixed(1)}px,${(dy*f).toFixed(1)}px) scale(${x.toFixed(4)},${y.toFixed(4)})`,opacity:t>.7?(1-ease((t-.7)/.3)*.5).toFixed(3):1,offset:t})}
+    return out}
   $('sclose').addEventListener('click',()=>closeSheet());
   $('sheet').addEventListener('click',e=>{if(e.target.id==='sheet')closeSheet()});
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&openKey)closeSheet()});
