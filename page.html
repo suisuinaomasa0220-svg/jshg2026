@@ -213,7 +213,6 @@ h1 .y{background:var(--accent);color:#fff;border-radius:10px;padding:0 .4em;marg
 #routes .route{margin:0 0 4px;padding:5px 10px}
 #routes .rday{font-size:.7rem;font-weight:800;color:var(--muted);margin:2px 0}
 .slot.both{filter:none}
-.slot.both .sess{border:3px solid transparent;background:linear-gradient(var(--kbg),var(--kbg)) padding-box,conic-gradient(from var(--ang,0deg),var(--pa),var(--accent),var(--pb),var(--mark),var(--pa)) border-box;box-shadow:0 0 14px -2px color-mix(in srgb,var(--pb) 60%,transparent)}
 .scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;overflow-y:hidden;overscroll-behavior-x:contain}
 .sheet:not([hidden]) .sheetin{animation:none}
 .sheet:not([hidden]){animation:none}
@@ -287,6 +286,8 @@ body.mini .route-svg .rg{stroke-width:6}
 body.pmode .rtog{display:none}
 .route-svg{position:absolute;left:0;top:0;z-index:3;pointer-events:none;overflow:visible}
 .route-svg .rl{fill:none;stroke-width:3.5;stroke-linecap:round;opacity:.9}
+.route-svg .rr{stroke-width:3;opacity:.95}
+.route-svg rect.rg{stroke-width:12;opacity:.28}
 .route-svg .rg{fill:none;stroke-width:10;opacity:.22;stroke-linecap:round}
 .route-svg .dash{stroke-dasharray:7 6}
 .route-svg .rs{fill:none;stroke:#fff;stroke-width:4;stroke-linecap:round;stroke-dasharray:3 97;filter:drop-shadow(0 0 4px #fff);display:none}
@@ -920,19 +921,24 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
       const svg=document.createElementNS(NS,'svg');svg.setAttribute('class','route-svg');
       svg.setAttribute('width',ttb.scrollWidth);svg.setAttribute('height',ttb.offsetHeight);
       let parts='';
-      [['a','--pa',-4],['b','--pb',4]].forEach(([k,cv,off])=>{
+      // 動線＝コマを囲んで光る枠（すいすい=内側の枠, AT=外側の枠）＋コマ間だけを結ぶ線。コマの中は貫かない
+      const mini=document.body.classList.contains('mini');const ph=window.innerWidth<=520;
+      const RX=mini?6:(ph?12:16);
+      [['a','--pa',-5,1.5],['b','--pb',5,-3]].forEach(([k,cv,off,inset])=>{
         if(SHOW[k]<2)return;const items=[];
         cols.forEach(col=>col.querySelectorAll('.slot').forEach(s=>{if(!s.querySelector('.pick.'+k+'[aria-pressed="true"]'))return;
-          const r=s.getBoundingClientRect();items.push({x:r.left-base.left+(document.body.classList.contains('mini')?5+off/2:r.width/2+off),t:r.top-base.top,b:r.top-base.top+s.querySelector('.sess').offsetHeight})}));
+          const r=s.getBoundingClientRect();const h=mini?s.querySelector('.sess').offsetHeight:r.height; // 詳細表示では印ボタンまで含めて囲む
+          items.push({l:r.left-base.left,w:r.width,x:r.left-base.left+(mini?r.width/2+off/2:r.width/2+off),t:r.top-base.top,b:r.top-base.top+h})}));
         if(!items.length)return;
         items.sort((p,q)=>p.t-q.t||p.x-q.x);
         const groups=[];items.forEach(it=>{const g=groups[groups.length-1];if(g&&it.t<g.end-2){g.list.push(it);g.end=Math.max(g.end,it.b)}else groups.push({list:[it],end:it.b})});
         const col='style="stroke:var('+cv+')"';let n=0;
+        const ring=it=>{const i=mini?inset/2:inset;parts+=`<rect class="rg" x="${it.l+i}" y="${it.t+i}" width="${it.w-2*i}" height="${it.b-it.t-2*i}" rx="${RX-i}" ${col}/><rect class="rl rr" x="${it.l+i}" y="${it.t+i}" width="${it.w-2*i}" height="${it.b-it.t-2*i}" rx="${RX-i}" ${col}/>`};
         const seg=(d,dash)=>{parts+=`<path class="rg" d="${d}" ${col}/><path class="rl${dash?' dash':''}" d="${d}" ${col}/><path class="rs" pathLength="100" d="${d}" style="animation-delay:${(n++*0.45).toFixed(2)}s"/>`};
         groups.forEach((g,gi)=>{const multi=g.list.length>1;
-          g.list.forEach(it=>seg(`M${it.x} ${it.t+4}L${it.x} ${it.b-4}`,multi));
+          g.list.forEach(ring);
           const nx=groups[gi+1];if(!nx)return;const dash=multi||nx.list.length>1;
-          g.list.forEach(p=>nx.list.forEach(q=>{const y1=p.b-4,y2=q.t+4,m=(y1+y2)/2;seg(`M${p.x} ${y1}C${p.x} ${m} ${q.x} ${m} ${q.x} ${y2}`,dash)}));
+          g.list.forEach(p=>nx.list.forEach(q=>{const y1=p.b-inset+1,y2=q.t+inset-1,m=(y1+y2)/2;seg(`M${p.x} ${y1}C${p.x} ${m} ${q.x} ${m} ${q.x} ${y2}`,dash)}));
         });
       });
       if(!parts)return;svg.innerHTML=parts;ttb.appendChild(svg);
