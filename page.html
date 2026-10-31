@@ -379,6 +379,7 @@ body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;back
   function buildChips(){if(typeof TAGS==='undefined')return;chips.innerHTML='';
     TAGS.forEach(t=>{const b=document.createElement('button');b.className='chip';b.type='button';b.textContent=t.label;b.title=t.desc;b.setAttribute('aria-pressed',TSEL.has(t.key));
       b.onclick=()=>{if(TSEL.has(t.key))TSEL.delete(t.key);else TSEL.add(t.key);b.setAttribute('aria-pressed',TSEL.has(t.key));try{localStorage.setItem('jshg2026tags',JSON.stringify([...TSEL]))}catch(e){};render()};chips.appendChild(b)});
+    const all=document.createElement('button');all.className='chip clr';all.type='button';all.textContent='全部';all.onclick=()=>{TAGS.forEach(t=>TSEL.add(t.key));buildChips();try{localStorage.setItem('jshg2026tags',JSON.stringify([...TSEL]))}catch(e){};render()};chips.appendChild(all);
     const c=document.createElement('button');c.className='chip clr';c.type='button';c.textContent='解除';c.onclick=()=>{TSEL.clear();buildChips();try{localStorage.removeItem('jshg2026tags')}catch(e){};render()};chips.appendChild(c)}
   document.addEventListener('DOMContentLoaded',()=>{buildChips();if(TSEL.size)render()});
   try{const s=localStorage.getItem('jshg2026q');if(s)q.value=s}catch(e){}
