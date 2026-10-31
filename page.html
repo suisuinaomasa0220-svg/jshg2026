@@ -342,7 +342,7 @@ body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;back
     <div class="drow"><div class="tabs" id="tabs"></div><div class="vseg" id="minib" role="group" aria-label="表示の大きさ"><button type="button" data-m="0" aria-pressed="true">詳細</button><button type="button" data-m="1" aria-pressed="false">全体</button></div><button type="button" class="btog" id="btog" aria-expanded="true"><span class="bsum" id="bsum"></span><span class="chev" id="chev">絞込 ▲</span></button></div>
     <div class="bbody" id="bbody">
     <div class="frow"><span class="fl">検索</span><div class="fc row"><input type="search" id="q" placeholder="スペース区切りでAND（英日可）"><span class="count" id="count"></span></div></div>
-    <div class="frow"><span class="fl">タグ</span><div class="fc chips" id="chips"></div></div>
+    <details class="tagsec" id="tagsec"><summary><span class="fl">タグ</span><span class="tsum" id="tsum">なし</span></summary><div class="fc chips" id="chips"></div></details>
     <div class="frow"><span class="fl">言語</span><div class="fc tabs" id="langs"></div></div>
     <details class="more" id="more"><summary>出席マークの設定</summary>
       <div class="frow"><span class="fl">出席</span><div class="fc labels"><input id="la" placeholder="名前A" aria-label="A の名前"> <input id="lb" placeholder="名前B" aria-label="B の名前"><button class="tab" id="copy" type="button">動線をテキストでコピー</button><span class="status" id="status"></span></div></div>
@@ -376,11 +376,12 @@ body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;back
   const TSEL=new Set();try{(JSON.parse(localStorage.getItem('jshg2026tags')||'[]')).forEach(k=>TSEL.add(k))}catch(e){}
   const tagHit=(i,t)=>t.re.test(t.field==='affil'?(i.affil||''):t.field==='authors'?((i.speaker||'')+' '+(i.chairs||'')):(i.session+' '+(SJA[i.code.split('-')[0]]||'')+' '+i.title+' '+i.ja));
   const tagsOfTalk=i=>typeof TAGS==='undefined'?[]:TAGS.filter(t=>tagHit(i,t));
-  function buildChips(){if(typeof TAGS==='undefined')return;chips.innerHTML='';
+  const tagSum=()=>{const sel=TAGS.filter(t=>TSEL.has(t.key)).map(t=>t.label);$('tsum').textContent=sel.length===0?'なし（押して選ぶ）':sel.length===TAGS.length?'全部':sel.join('・')};
+  function buildChips(){if(typeof TAGS==='undefined')return;chips.innerHTML='';tagSum();
     const all=document.createElement('button');all.className='chip clr';all.type='button';all.textContent='全部';all.onclick=()=>{TAGS.forEach(t=>TSEL.add(t.key));buildChips();try{localStorage.setItem('jshg2026tags',JSON.stringify([...TSEL]))}catch(e){};render()};chips.appendChild(all);
     const c=document.createElement('button');c.className='chip clr';c.type='button';c.textContent='解除';c.onclick=()=>{TSEL.clear();buildChips();try{localStorage.removeItem('jshg2026tags')}catch(e){};render()};chips.appendChild(c);
     TAGS.forEach(t=>{const b=document.createElement('button');b.className='chip';b.type='button';b.textContent=t.label;b.title=t.desc;b.setAttribute('aria-pressed',TSEL.has(t.key));
-      b.onclick=()=>{if(TSEL.has(t.key))TSEL.delete(t.key);else TSEL.add(t.key);b.setAttribute('aria-pressed',TSEL.has(t.key));try{localStorage.setItem('jshg2026tags',JSON.stringify([...TSEL]))}catch(e){};render()};chips.appendChild(b)})}
+      b.onclick=()=>{if(TSEL.has(t.key))TSEL.delete(t.key);else TSEL.add(t.key);b.setAttribute('aria-pressed',TSEL.has(t.key));tagSum();try{localStorage.setItem('jshg2026tags',JSON.stringify([...TSEL]))}catch(e){};render()};chips.appendChild(b)})}
   document.addEventListener('DOMContentLoaded',()=>{buildChips();if(TSEL.size)render()});
   try{const s=localStorage.getItem('jshg2026q');if(s)q.value=s}catch(e){}
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1004,6 +1005,14 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
 #chips .chip{box-sizing:border-box;width:100%;height:32px;padding:0 6px;display:flex;align-items:center;justify-content:center;white-space:nowrap;font-size:.78rem;font-weight:700;border:1.5px solid var(--line);background:var(--panel);color:var(--fg)}
 #chips .chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
 #chips .chip.clr{background:var(--chip);border-style:dashed;color:var(--muted)}
+/* タグ絞込は折りたたみ（選択中タグを見出しに表示） */
+.tagsec{margin:4px 0}
+.tagsec summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none;padding:4px 0}
+.tagsec summary::-webkit-details-marker{display:none}
+.tagsec summary::after{content:'▼';font-size:.7rem;color:var(--muted);margin-left:auto}
+.tagsec[open] summary::after{content:'▲'}
+.tagsec .tsum{font-size:.8rem;color:var(--accent);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.tagsec #chips{margin-top:6px}
 </style>
 <script>
 (function(){
