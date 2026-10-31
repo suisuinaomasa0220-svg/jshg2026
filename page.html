@@ -1,5 +1,5 @@
 <script>/*__BOOT__*/</script>
-<script>document.documentElement.setAttribute('data-theme','light');window.addEventListener('error',function(e){var d=document.createElement('pre');d.id='jserr';d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:999;background:#fee;color:#900;font-size:11px;padding:6px;white-space:pre-wrap;margin:0;max-height:60vh;overflow:auto';var t='JSエラー: '+e.message+' @'+e.lineno+':'+e.colno+'\n';try{var L=e.lineno,C=e.colno;var all=document.documentElement.outerHTML.split('\n');t+='[doc] '+(all[L-1]||'').slice(Math.max(0,C-90),C+40)+'\n';var ss=document.querySelectorAll('script');for(var i=0;i<ss.length;i++){var ls=ss[i].textContent.split('\n');if(ls.length>=L){t+='[script'+i+'] '+(ls[L-1]||'').slice(Math.max(0,C-90),C+40)+'\n'}}}catch(x){t+=String(x)}d.textContent=t;document.body.appendChild(d)});</script>
+<script>document.documentElement.setAttribute('data-theme','light');window.addEventListener('error',function(e){var d=document.createElement('pre');d.id='jserr';d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:999;background:#fee;color:#900;font-size:11px;padding:6px;white-space:pre-wrap;margin:0';d.textContent='JSエラー: '+e.message+' @'+e.lineno+':'+e.colno;document.body.appendChild(d)});</script>
 <title>JSHG2026 プログラム</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Zen+Maru+Gothic:wght@500;700&family=IBM+Plex+Mono:wght@500&display=swap">
@@ -819,16 +819,16 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
   function springKF({dx,dy,sx,sy}){const N=48,out=[];
     const sp=(t,z,w)=>{const wd=w*Math.sqrt(1-z*z);return 1-Math.exp(-z*w*t)*(Math.cos(wd*t)+(z*w/wd)*Math.sin(wd*t))};
     for(let i=0;i<=N;i++){const t=i/N;const px=sp(t,.62,14),py=sp(Math.max(0,t-.05),.5,15);
-      const f=1-px,x=sx+(1-sx)*px,y=sy+(1-sy)*py,o=Math.min(1,t/.22);
+      const f=1-px,x=sx+(1-sx)*px,y=sy+(1-sy)*py,o=Math.min(1,t/0.22);
       out.push({transform:`translate(${(dx*f).toFixed(1)}px,${(dy*f).toFixed(1)}px) scale(${x.toFixed(4)},${y.toFixed(4)})`,opacity:o.toFixed(3),offset:t})}
     out[N].transform='none';out[N].opacity=1;return out}
   // 閉じる: いったんふくらんでから、吸い込まれるように加速して戻る
   function closeKF({dx,dy,sx,sy}){const N=36,out=[];
     const ease=t=>t*t*(3-2*t);
     for(let i=0;i<=N;i++){const t=i/N;let p;
-      if(t<.22){p=-.07*Math.sin(Math.PI*t/.22)}else{const u=(t-.22)/.78;p=Math.pow(u,1.9)}
+      if(t<.22){p=-.07*Math.sin(Math.PI*t/0.22)}else{const u=(t-.22)/0.78;p=Math.pow(u,1.9)}
       const px=p,py=t<.22?p*1.4:p;const f=Math.max(0,px),x=1+(sx-1)*Math.max(0,px)-(px<0?px:0)*.6,y=1+(sy-1)*Math.max(0,py)-(py<0?py:0)*1.2;
-      out.push({transform:`translate(${(dx*f).toFixed(1)}px,${(dy*f).toFixed(1)}px) scale(${x.toFixed(4)},${y.toFixed(4)})`,opacity:t>.7?(1-ease((t-.7)/.3)*.5).toFixed(3):1,offset:t})}
+      out.push({transform:`translate(${(dx*f).toFixed(1)}px,${(dy*f).toFixed(1)}px) scale(${x.toFixed(4)},${y.toFixed(4)})`,opacity:t>.7?(1-ease((t-.7)/0.3)*.5).toFixed(3):1,offset:t})}
     return out}
   $('sclose').addEventListener('click',()=>closeSheet());
   $('sheet').addEventListener('click',e=>{if(e.target.id==='sheet')closeSheet()});
