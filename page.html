@@ -152,6 +152,7 @@ table{border-collapse:separate;width:100%;min-width:760px;table-layout:fixed;bor
   .who2 .pick{font-size:.78rem;padding:6px 4px;min-height:32px}
   .rh{gap:2px;font-size:.74rem}
   .nowbtn{font-size:.95rem;padding:11px 16px}
+  h1 .y,#pv h1 .y{width:30px;height:30px;border-radius:8px}
   .rtog .rl0{font-size:.74rem}
   .rtog button{font-size:.88rem;padding:8px 0}
   .sheetin .panel{padding:12px 13px}
@@ -205,7 +206,7 @@ table{border-collapse:separate;width:100%;min-width:760px;table-layout:fixed;bor
 .slot:nth-child(3n){animation-delay:.08s}
 @keyframes flash{0%,100%{filter:none;transform:none}25%,75%{filter:drop-shadow(0 0 18px var(--accent)) brightness(1.1);transform:scale(1.06)}}
 .slot.flash,.nowline.flash{animation:flash .6s ease-in-out 3}
-h1 .y{background:var(--accent);color:#fff;border-radius:10px;padding:0 .4em;margin-right:.3em;transform:rotate(-3deg);display:inline-block}
+h1 .y{display:inline-block;width:36px;height:36px;border-radius:9px;margin-right:.2em;transform:rotate(-3deg);box-shadow:0 2px 6px -2px rgba(40,20,30,.4);flex:none}
 @media (prefers-reduced-motion:reduce){
   *,*::before{animation:none!important;transition:none!important}
 }
@@ -311,7 +312,7 @@ body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;back
 h1 .roletag+.swlink{margin-left:6px!important}
 #pv .wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 60px}
 #pv h1{font-family:var(--display);font-weight:700;font-size:1.35rem;margin:0 0 4px;text-wrap:balance}
-#pv h1 .y{display:inline-block;background:var(--accent);color:#fff;border-radius:10px;padding:0 .4em;margin-right:.3em;transform:rotate(-3deg)}
+#pv h1 .y{display:inline-block;width:36px;height:36px;border-radius:9px;margin-right:.2em;transform:rotate(-3deg);box-shadow:0 2px 6px -2px rgba(40,20,30,.4);flex:none}
 #pv .hd{display:flex;align-items:center;gap:6px;margin:0}
 #pv .frow{display:grid;grid-template-columns:3.4em minmax(0,1fr);gap:8px;align-items:center}
 #pv .fl{font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:.04em}
@@ -591,7 +592,7 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
 <div class="wrap">
   
 
-  <div class="bar" id="bar"><h1 style="display:flex;align-items:center;gap:6px;margin:0"><span class="y">71st</span>時間割<a class="swlink" href="#poster" style="margin-left:auto;flex:none;font-family:var(--font);font-weight:800;font-size:.8rem;color:#fff;background:var(--accent);border-radius:999px;padding:4px 12px;text-decoration:none;white-space:nowrap">ポスター →</a></h1>
+  <div class="bar" id="bar"><h1 style="display:flex;align-items:center;gap:6px;margin:0"><img class="y" src="https://raw.githubusercontent.com/suisuinaomasa0220-svg/jshg2026/main/icon-192.png" alt="JSHG" width="36" height="36">時間割<a class="swlink" href="#poster" style="margin-left:auto;flex:none;font-family:var(--font);font-weight:800;font-size:.8rem;color:#fff;background:var(--accent);border-radius:999px;padding:4px 12px;text-decoration:none;white-space:nowrap">ポスター →</a></h1>
     <div class="drow"><div class="tabs" id="tabs"></div><div class="vseg" id="minib" role="group" aria-label="表示の大きさ"><button type="button" data-m="0" aria-pressed="true">詳細</button><button type="button" data-m="1" aria-pressed="false">全体</button></div><button type="button" class="btog" id="btog" aria-expanded="true"><span class="bsum" id="bsum"></span><span class="chev" id="chev">絞込 ▲</span></button></div>
     <div class="bbody" id="bbody">
     <div class="frow"><span class="fl">検索</span><div class="fc row"><input type="search" id="q" placeholder="スペース区切りでAND（英日可）"><span class="count" id="count"></span></div></div>
@@ -987,7 +988,7 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
   <div class="mockbanner">ポスター一覧は公開前のため、今は架空のサンプルです。公開されたら差し替えます。</div>
 
   <div class="bar">
-    <h1 class="hd"><span class="y">71st</span>ポスター<a class="swlink" href="#jikanwari">← 時間割</a></h1>
+    <h1 class="hd"><img class="y" src="https://raw.githubusercontent.com/suisuinaomasa0220-svg/jshg2026/main/icon-192.png" alt="JSHG" width="36" height="36">ポスター<a class="swlink" href="#jikanwari">← 時間割</a></h1>
     <div class="frow"><span class="fl">検索</span><div class="row"><input type="search" id="pq" placeholder="演題名・所属・抄録をAND検索"><span class="count" id="pcount"></span></div></div>
     <div class="frow"><span class="fl">絞込</span><div class="prow2"><div class="tabs pdays" id="ppdays"></div><span class="psep"></span><div class="tabs" id="ptiers"></div></div></div>
     <p class="tabdesc" id="ptabdesc"></p>
