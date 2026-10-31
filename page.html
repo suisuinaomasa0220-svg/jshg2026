@@ -596,6 +596,8 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
 .srow #langs{flex:none;gap:4px}
 .srow .count{margin-left:0;white-space:nowrap}
 @media (max-width:520px){.srow .count{display:none}.srow #langs .tab{padding:6px 8px}}
+.tagsec{margin:0}
+.tagsec #chips{margin-top:0}
 </style>
 
 <div class="wrap">
@@ -605,7 +607,7 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
     <div class="drow"><div class="tabs" id="tabs"></div><div class="vseg" id="minib" role="group" aria-label="表示の大きさ"><button type="button" data-m="0" aria-pressed="true">詳細</button><button type="button" data-m="1" aria-pressed="false">全体</button></div><button type="button" class="btog" id="btog" aria-expanded="true"><span class="bsum" id="bsum"></span><span class="chev" id="chev">絞込 ▲</span></button></div>
     <div class="bbody" id="bbody">
     <div class="srow"><input type="search" id="q" placeholder="検索（スペース区切りでAND）"><div class="tabs" id="langs"></div><span class="count" id="count"></span></div>
-    <details class="tagsec" id="tagsec"><summary><span class="fl">タグ</span><span class="tsum" id="tsum">なし</span></summary><div class="fc chips" id="chips"></div></details>
+    <div class="tagsec" id="tagsec"><span class="tsum" id="tsum" hidden>なし</span><div class="fc chips" id="chips"></div></div>
     <details class="more" id="more" hidden><summary>出席マークの設定</summary>
       <div class="frow"><span class="fl">出席</span><div class="fc labels"><input id="la" placeholder="名前A" aria-label="A の名前"> <input id="lb" placeholder="名前B" aria-label="B の名前"><button class="tab" id="copy" type="button">動線をテキストでコピー</button><span class="status" id="status"></span></div></div>
     </details>
