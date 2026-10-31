@@ -947,7 +947,7 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
         items.sort((p,q)=>p.t-q.t||p.x-q.x);
         const groups=[];items.forEach(it=>{const g=groups[groups.length-1];if(g&&it.t<g.end-2){g.list.push(it);g.end=Math.max(g.end,it.b)}else groups.push({list:[it],end:it.b})});
         const col='style="stroke:var('+cv+')"';let n=0;
-        const ring=it=>{const i=mini?inset/2:inset;parts+=`<rect class="rg" x="${it.l+i}" y="${it.t+i}" width="${it.w-2*i}" height="${it.b-it.t-2*i}" rx="${RX-i}" ${col}/><rect class="rl rr" x="${it.l+i}" y="${it.t+i}" width="${it.w-2*i}" height="${it.b-it.t-2*i}" rx="${RX-i}" ${col}/>`};
+        const ring=it=>{const i=mini?inset*0.5:inset; /* 「/」の割り算は本番の前処理で正規表現と誤解釈されるので使わない */parts+=`<rect class="rg" x="${it.l+i}" y="${it.t+i}" width="${it.w-2*i}" height="${it.b-it.t-2*i}" rx="${RX-i}" ${col}/><rect class="rl rr" x="${it.l+i}" y="${it.t+i}" width="${it.w-2*i}" height="${it.b-it.t-2*i}" rx="${RX-i}" ${col}/>`};
         const seg=(d,dash)=>{parts+=`<path class="rg" d="${d}" ${col}/><path class="rl${dash?' dash':''}" d="${d}" ${col}/><path class="rs" pathLength="100" d="${d}" style="animation-delay:${(n++*0.45).toFixed(2)}s"/>`};
         groups.forEach((g,gi)=>{const multi=g.list.length>1;
           g.list.forEach(ring);
