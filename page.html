@@ -383,7 +383,7 @@ h1 .roletag+.swlink{margin-left:6px!important}
 #pv .grp .list{padding:0 6px 8px}
 #pv .more{display:block;width:100%;margin-top:16px;font:inherit;font-weight:800;font-size:.88rem;border:2px dashed var(--oth);color:var(--oth);background:var(--oth-bg);border-radius:14px;padding:12px;cursor:pointer}
 #pv .pick{font:inherit;font-size:.74rem;font-weight:700;padding:5px 4px;border:2px solid var(--line);border-radius:999px;background:var(--panel);color:var(--muted);cursor:pointer;text-align:center}
-#pv .pick.arm{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+
 #pv .memo-n{font:inherit;font-size:.72rem;font-weight:700;border:0;background:var(--chip);color:var(--fg);border-radius:999px;padding:5px 10px;cursor:pointer;white-space:nowrap}
 #pv .goers{font-size:.72rem;color:var(--muted);line-height:1.4}
 #pv .goers b{color:var(--fg);font-weight:700}
@@ -600,6 +600,17 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
 .tagsec #chips{margin-top:0}
 .role-view .who2,.role-view .rtog,.role-view #pv .pick,.role-view .route-svg{display:none!important}
 .role-view #pv .foot{grid-template-columns:1fr auto}
+/* ポスターのヘッダーを時間割と同じ見た目に */
+#pv .bar{gap:8px}
+#pv .pdays,#pv #ptiers{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px;align-items:center}
+#pv .pdays .tab,#pv #ptiers .tab{box-sizing:border-box;border:2px solid var(--accent);border-radius:999px;background:var(--panel);color:var(--accent);font-weight:800;font-size:.8rem;height:34px;padding:0 4px;box-shadow:none;transform:none}
+#pv .pdays .tab[aria-pressed=true],#pv #ptiers .tab[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+#pv .pdays .tab[aria-pressed=true]{height:42px;font-size:1rem}
+#pv .srow .kwbtn{flex:none;font:inherit;font-size:.78rem;font-weight:800;color:var(--accent);background:var(--accent-soft);border:0;border-radius:999px;padding:8px 12px;cursor:pointer;white-space:nowrap}
+#pv .srow .kwbtn[aria-expanded=true]{background:var(--accent);color:#fff}
+#pv .kwdef{margin:0}
+#pv .kwdef:not([open]){display:none}
+#pv .pthemerow{display:none!important}
 </style>
 
 <div class="wrap">
@@ -859,6 +870,7 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
     render();out.querySelectorAll('.scroll').forEach(e=>{if(v.sl&&v.sl[e.dataset.d])e.scrollLeft=v.sl[e.dataset.d]});
     try{history.scrollRestoration='manual'}catch(e){}const y=v.y||0;const t0=Date.now();[0,60,250].forEach(t=>setTimeout(()=>{if(lastTouchAt()>t0)return;window.scrollTo(0,y)},t))}
   const calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.__burst=(x,y,k,both)=>burst(x,y,k,both);
   function burst(x,y,k,both){if(calm||!document.body.animate)return;const css=getComputedStyle(document.documentElement);const g=v=>css.getPropertyValue(v).trim();
     const cols=both?[g('--pa'),g('--pb'),g('--mark'),g('--accent'),g('--edu'),g('--sym')]:[g(k==='a'?'--pa':'--pb'),g('--mark'),g('--accent'),'#ffffff'];
     const n=both?140:70;
@@ -1015,11 +1027,12 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
 
   <div class="bar">
     <h1 class="hd"><img class="y" src="https://raw.githubusercontent.com/suisuinaomasa0220-svg/jshg2026/main/icon-192.png" alt="JSHG" width="36" height="36">ポスター<a class="swlink" href="#jikanwari">← 時間割</a></h1>
-    <div class="frow"><span class="fl">検索</span><div class="row"><input type="search" id="pq" placeholder="演題名・所属・抄録をAND検索"><span class="count" id="pcount"></span></div></div>
-    <div class="frow"><span class="fl">絞込</span><div class="prow2"><div class="tabs pdays" id="ppdays"></div><span class="psep"></span><div class="tabs" id="ptiers"></div></div></div>
-    <p class="tabdesc" id="ptabdesc"></p>
-    <details class="kwdef" id="pkwdef"><summary>タグの定義</summary><ul id="pkwlist"></ul></details>
-    <div class="frow pthemerow" id="pthemerow"><button type="button" class="fl pthtog" id="pthtog" aria-expanded="false">テーマ ▾</button><div class="chipwrap" id="pchipwrap"><div class="chips" id="pthemes"></div><button type="button" class="sarr l" id="psarrl" aria-label="左へ" tabindex="-1">‹</button><button type="button" class="sarr r" id="psarrr" aria-label="右へ" tabindex="-1">›</button></div></div>
+    <div class="tabs pdays" id="ppdays"></div>
+    <div class="tabs" id="ptiers"></div>
+    <div class="srow"><input type="search" id="pq" placeholder="検索（演題名・所属・抄録）"><button type="button" class="kwbtn" id="pkwbtn" aria-expanded="false">タグの定義</button><span class="count" id="pcount" hidden></span></div>
+    <p class="tabdesc" id="ptabdesc" hidden></p>
+    <details class="kwdef" id="pkwdef"><summary hidden>タグの定義</summary><ul id="pkwlist"></ul></details>
+    <div class="frow pthemerow" hidden id="pthemerow"><button type="button" class="fl pthtog" id="pthtog" aria-expanded="false">テーマ ▾</button><div class="chipwrap" id="pchipwrap"><div class="chips" id="pthemes"></div><button type="button" class="sarr l" id="psarrl" aria-label="左へ" tabindex="-1">‹</button><button type="button" class="sarr r" id="psarrr" aria-label="右へ" tabindex="-1">›</button></div></div>
   </div>
 
   <div id="pout"></div>
@@ -1119,6 +1132,7 @@ const TIERS={hot:{name:"タグあり",why:"キーワードタグのどれかに�
 const LS="jshg-poster-mock3";
 let S={marks:{},memos:{},mine:[],skip:{},tier:"rec",theme:"",q:"",day:""};
 try{Object.assign(S,JSON.parse(localStorage.getItem(LS)||"{}"))}catch(e){}
+S.theme="";
 if(window.__pvViewer){S.marks={};if(S.tier==="a"||S.tier==="b")S.tier="rec"}
 function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
 
@@ -1231,12 +1245,12 @@ document.addEventListener("click",e=>{
     if(Math.abs(e.clientY-downY)>8)return;
     if(window.__pvCan&&!window.__pvCan(t.dataset.pick)){toast("このリンクでは"+(t.dataset.pick==="a"?"すいすい":"AT")+"の印は付けられません");return}
     const code=t.closest(".card").dataset.code,k=t.dataset.pick,m=S.marks[code]||(S.marks[code]={});
-    if(m[k]){ if(armed!==t){armed&&armed.classList.remove("arm");armed=t;t.classList.add("arm");clearTimeout(armT);armT=setTimeout(()=>{t.classList.remove("arm");armed=null},2500);toast("もう一度タップで外します");return}
+    if(m[k]){ if(armed!==t){if(armed){armed.classList.remove("arm");armed.textContent=armed.dataset.lbl}armed=t;t.dataset.lbl=t.textContent;t.classList.add("arm");t.textContent="外す？";clearTimeout(armT);armT=setTimeout(()=>{t.classList.remove("arm");t.textContent=t.dataset.lbl;armed=null},2500);return}
       armed=null;m[k]=false;}
     else{m[k]=true;}
     window.__pvMark&&window.__pvMark(code,k,!!m[k]);
     save();render();
-    const nb=document.querySelector(`.card[data-code="${code}"] .pick.${k}`);if(nb&&m[k])nb.classList.add("pop");
+    const nb=document.querySelector(`.card[data-code="${code}"] .pick.${k}`);if(nb&&m[k]){nb.classList.add("pop");window.__burst&&window.__burst(e.clientX,e.clientY,k,!!(m.a&&m.b))}
     return;
   }
   if(t.dataset.del){const id=t.dataset.del;S.memos[openCode]=(S.memos[openCode]||[]).filter(x=>x.id!==id);S.mine=S.mine.filter(x=>x!==id);window.__pvMemoDel&&window.__pvMemoDel(id);save();render();sheet(openCode);return}
@@ -1261,6 +1275,7 @@ document.addEventListener("submit",e=>{
   save();render();sheet(openCode);toast("メモを残しました");
 });
 $("pq").value=S.q||"";
+$("pkwbtn").addEventListener("click",()=>{const d=$("pkwdef");d.open=!d.open;$("pkwbtn").setAttribute("aria-expanded",d.open)});
 $("pq").addEventListener("input",e=>{S.q=e.target.value;save();render()});
 let tt;function toast(s){const el=$("ptoast");el.textContent=s;el.hidden=false;clearTimeout(tt);tt=setTimeout(()=>el.hidden=true,1800)}
 
