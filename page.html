@@ -1001,8 +1001,9 @@ body.role-b .rtog .a{order:2}
 /* フロート表示中はフッター（表示ボタン）を隠す */
 body:has(.sheet:not([hidden])) .rtog{display:none}
 /* タグチップ：同じ大きさで格子状に並べる。全部／解除は先頭 */
-#chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
-#chips .chip{box-sizing:border-box;width:100%;height:32px;padding:0 6px;display:flex;align-items:center;justify-content:center;white-space:nowrap;font-size:.78rem;font-weight:700;border:1.5px solid var(--line);background:var(--panel);color:var(--fg)}
+#chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:100%}
+@media (min-width:700px){#chips{grid-template-columns:repeat(7,minmax(0,1fr))}}
+#chips .chip{box-sizing:border-box;width:100%;height:32px;padding:0 4px;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;justify-content:center;white-space:nowrap;font-size:.78rem;font-weight:700;border:1.5px solid var(--line);background:var(--panel);color:var(--fg)}
 #chips .chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
 #chips .chip.clr{background:var(--chip);border-style:dashed;color:var(--muted)}
 /* タグ絞込は折りたたみ（選択中タグを見出しに表示） */
