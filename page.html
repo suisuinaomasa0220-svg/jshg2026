@@ -377,10 +377,10 @@ body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;back
   const tagHit=(i,t)=>t.re.test(t.field==='affil'?(i.affil||''):t.field==='authors'?((i.speaker||'')+' '+(i.chairs||'')):(i.session+' '+(SJA[i.code.split('-')[0]]||'')+' '+i.title+' '+i.ja));
   const tagsOfTalk=i=>typeof TAGS==='undefined'?[]:TAGS.filter(t=>tagHit(i,t));
   function buildChips(){if(typeof TAGS==='undefined')return;chips.innerHTML='';
-    TAGS.forEach(t=>{const b=document.createElement('button');b.className='chip';b.type='button';b.textContent=t.label;b.title=t.desc;b.setAttribute('aria-pressed',TSEL.has(t.key));
-      b.onclick=()=>{if(TSEL.has(t.key))TSEL.delete(t.key);else TSEL.add(t.key);b.setAttribute('aria-pressed',TSEL.has(t.key));try{localStorage.setItem('jshg2026tags',JSON.stringify([...TSEL]))}catch(e){};render()};chips.appendChild(b)});
     const all=document.createElement('button');all.className='chip clr';all.type='button';all.textContent='全部';all.onclick=()=>{TAGS.forEach(t=>TSEL.add(t.key));buildChips();try{localStorage.setItem('jshg2026tags',JSON.stringify([...TSEL]))}catch(e){};render()};chips.appendChild(all);
-    const c=document.createElement('button');c.className='chip clr';c.type='button';c.textContent='解除';c.onclick=()=>{TSEL.clear();buildChips();try{localStorage.removeItem('jshg2026tags')}catch(e){};render()};chips.appendChild(c)}
+    const c=document.createElement('button');c.className='chip clr';c.type='button';c.textContent='解除';c.onclick=()=>{TSEL.clear();buildChips();try{localStorage.removeItem('jshg2026tags')}catch(e){};render()};chips.appendChild(c);
+    TAGS.forEach(t=>{const b=document.createElement('button');b.className='chip';b.type='button';b.textContent=t.label;b.title=t.desc;b.setAttribute('aria-pressed',TSEL.has(t.key));
+      b.onclick=()=>{if(TSEL.has(t.key))TSEL.delete(t.key);else TSEL.add(t.key);b.setAttribute('aria-pressed',TSEL.has(t.key));try{localStorage.setItem('jshg2026tags',JSON.stringify([...TSEL]))}catch(e){};render()};chips.appendChild(b)})}
   document.addEventListener('DOMContentLoaded',()=>{buildChips();if(TSEL.size)render()});
   try{const s=localStorage.getItem('jshg2026q');if(s)q.value=s}catch(e){}
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -999,6 +999,11 @@ body.role-b .rtog .a{order:2}
 .talk .ttag.sel{background:var(--accent);color:#fff}
 /* フロート表示中はフッター（表示ボタン）を隠す */
 body:has(.sheet:not([hidden])) .rtog{display:none}
+/* タグチップ：同じ大きさで格子状に並べる。全部／解除は先頭 */
+#chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
+#chips .chip{box-sizing:border-box;width:100%;height:32px;padding:0 6px;display:flex;align-items:center;justify-content:center;white-space:nowrap;font-size:.78rem;font-weight:700;border:1.5px solid var(--line);background:var(--panel);color:var(--fg)}
+#chips .chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+#chips .chip.clr{background:var(--chip);border-style:dashed;color:var(--muted)}
 </style>
 <script>
 (function(){
