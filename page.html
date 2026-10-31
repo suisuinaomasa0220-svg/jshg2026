@@ -992,9 +992,10 @@ body.role-b .rtog .a{order:2}
 
 /* フロート内：絞込に該当する演題を強調、該当しない演題は薄く */
 .talk.hit{background:#fff7d6;border-left:5px solid #e0a800;padding-left:8px;padding-right:6px;border-radius:0 8px 8px 0}
-.talk.hit .ttag.sel{background:#e0a800;color:#fff}
+.talk.hit .ttag{background:#fff;color:#8a6a00;border:1px solid #e6c766}
+.talk.hit .ttag.sel{background:#e0a800;color:#fff;border-color:#e0a800}
 .talk.miss{opacity:.45}
-.talk .ttag.sel{background:#e0a800;color:#fff}
+.talk .ttag.sel{background:var(--accent);color:#fff}
 </style>
 <script>
 (function(){
