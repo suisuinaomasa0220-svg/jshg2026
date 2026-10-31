@@ -1018,6 +1018,16 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
 .tagsec .tsum{font-size:.8rem;color:var(--accent);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .tagsec #chips{margin-top:6px}
 .talk .tabs2{margin-top:4px}.talk .tabs2 summary{cursor:pointer;font-size:.74rem;color:var(--accent);font-weight:700}.talk .abs{font-size:.8rem;line-height:1.5;margin-top:4px;white-space:pre-wrap}
+/* ヘッダー3要素（日付・詳細/全体・絞込）のデザイン統一：同じ枠色・角丸・文字サイズ・高さ、選択中は塗り＋縦に伸びる */
+.drow #tabs .tab,.drow .vseg button,.drow .btog{box-sizing:border-box;border:2px solid var(--accent);border-radius:999px;background:var(--panel);color:var(--accent);font-weight:800;font-size:.78rem;min-height:28px;height:28px;padding:0 10px;display:flex;align-items:center;justify-content:center;box-shadow:none}
+.drow .vseg button{padding:0}
+.drow .btog{width:auto;flex:none;transition:height .32s cubic-bezier(.34,1.56,.64,1),min-height .32s cubic-bezier(.34,1.56,.64,1),font-size .32s cubic-bezier(.34,1.56,.64,1),background .2s,color .2s}
+.drow .btog .chev{color:inherit;font-size:inherit;font-weight:inherit}
+.drow #tabs .tab[aria-pressed=true],.drow .vseg button[aria-pressed=true],.drow .btog[aria-expanded=true]{background:var(--accent);border-color:var(--accent);color:#fff;min-height:46px;height:46px}
+.drow .vseg button[aria-pressed=true]{font-size:1.0rem}
+.drow .btog[aria-expanded=true]{font-size:.9rem}
+.drow .btog{height:46px;min-height:46px}
+.drow .btog[aria-expanded=false]{height:28px;min-height:28px}
 </style>
 <script>
 (function(){
