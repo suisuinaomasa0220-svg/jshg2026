@@ -459,8 +459,8 @@ body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;back
     const sh=$('sheet');
     if(openSess){const o=openSess;
       let p=`${o.s.kind==='シンポジウム'?`<div class="ptitle">${hl(o.s.session.replace(/^S\d+\s*/,''),terms)}${SJA[o.s.code.split('-')[0]]?`<div class="ja">${hl(SJA[o.s.code.split('-')[0]],terms)}</div>`:''}</div>`:''}<div class="chairs">${esc(o.s.kind)}　${esc(o.s.date)} ${esc(o.s.time)}　${esc(o.s.room)}${o.s.chairs?`　座長：${hl(o.s.chairs,terms)}`:''}</div><ul class="talks">`;
-      const tagsOf=x=>{const t=tagsOfTalk(x);return t.length?`<div class="ttags">${t.map(t=>`<span class="ttag">${esc(t.label)}</span>`).join('')}</div>`:''};
-      o.talks.forEach(x=>{p+=`<li class="talk"><span class="tc">${esc(x.code)}</span>${hl(x.title,terms)}${x.ja?`<div class="ja">${hl(x.ja,terms)}</div>`:''}${x.speaker||x.affil?`<div class="who">${hl(x.speaker,terms)}${x.affil?`（${hl(x.affil,terms)}）`:''}</div>`:''}${tagsOf(x)}</li>`});
+      const tagsOf=x=>{const t=tagsOfTalk(x);return t.length?`<div class="ttags">${t.map(t=>`<span class="ttag${TSEL.has(t.key)?' sel':''}">${esc(t.label)}</span>`).join('')}</div>`:''};
+      o.talks.forEach(x=>{const hit=filtering?match(x,terms):null;p+=`<li class="talk${hit===true?' hit':hit===false?' miss':''}"><span class="tc">${esc(x.code)}</span>${hl(x.title,terms)}${x.ja?`<div class="ja">${hl(x.ja,terms)}</div>`:''}${x.speaker||x.affil?`<div class="who">${hl(x.speaker,terms)}${x.affil?`（${hl(x.affil,terms)}）`:''}</div>`:''}${tagsOf(x)}</li>`});
       $('sbody').innerHTML=p+'</ul>';$('sbody').dataset.kind=KIND[o.s.kind]||'';sh.hidden=false;
       const si=sh.firstElementChild;si.style.marginTop='0px';
       (()=>{const btn=out.querySelector(`.sess[aria-expanded="true"]`);const vh=window.innerHeight,h=si.offsetHeight;let top;
@@ -989,6 +989,11 @@ body.role-b .rtog .a{order:2}
 
 .chips .chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
 .chips .chip.clr{background:transparent;border-style:dashed}
+
+/* フロート内：絞込に該当する演題を強調、該当しない演題は薄く */
+.talk.hit{background:var(--accent-soft);border-left:4px solid var(--accent);padding-left:8px;padding-right:6px;border-radius:0 8px 8px 0}
+.talk.miss{opacity:.45}
+.talk .ttag.sel{background:var(--accent);color:#fff}
 </style>
 <script>
 (function(){
