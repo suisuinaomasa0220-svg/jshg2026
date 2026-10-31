@@ -93,7 +93,6 @@ table{border-collapse:separate;width:100%;min-width:760px;table-layout:fixed;bor
   .sess,.tab{transition:none;transform:none!important}
 }
 @media (max-width:520px){
-  .wrap{padding-block:8px 32px}
   h1{font-size:1.1rem;margin-bottom:4px}
   .bar{gap:5px;padding-block:5px 6px}
   .bbody{gap:5px}
@@ -136,8 +135,6 @@ table{border-collapse:separate;width:100%;min-width:760px;table-layout:fixed;bor
 .slot.short .sname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sheet[hidden]{display:none!important}
 @media (max-width:520px){
-  .tt{min-width:calc(var(--nr,4)*145px + 18px)}
-  .tth,.ttb{grid-template-columns:18px repeat(var(--nr,4),minmax(0,1fr));gap:3px}
   .rh small{display:block;width:100%}
   .slot .sess{padding:5px 6px}
 }
@@ -157,7 +154,6 @@ table{border-collapse:separate;width:100%;min-width:760px;table-layout:fixed;bor
   .nowbtn{font-size:.95rem;padding:11px 16px}
   .rtog .rl0{font-size:.74rem}
   .rtog button{font-size:.88rem;padding:8px 0}
-  .tick{font-size:.7rem}
   .sheetin .panel{padding:12px 13px}
 }
 @keyframes fadein{from{opacity:0}to{opacity:1}}
@@ -582,6 +578,13 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
 .drow .btog[aria-expanded=true]{font-size:.9rem}
 .drow .btog{width:auto;flex:none;transition:height .32s cubic-bezier(.34,1.56,.64,1),min-height .32s cubic-bezier(.34,1.56,.64,1),font-size .32s cubic-bezier(.34,1.56,.64,1),background .2s,color .2s;height:46px;min-height:46px}
 .drow .btog[aria-expanded=false]{height:34px;min-height:34px}
+/* ==== phone overrides (最後に置いて必ず勝たせる) ==== */
+@media (max-width:520px){
+  .wrap{padding-top:8px}
+  .tt{min-width:calc(var(--nr,4)*145px + 18px)}
+  .tth,.ttb{grid-template-columns:18px repeat(var(--nr,4),minmax(0,1fr));gap:3px}
+  .tick{font-size:.7rem}
+}
 </style>
 
 <div class="wrap">
