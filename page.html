@@ -140,7 +140,7 @@ table{border-collapse:separate;width:100%;min-width:760px;table-layout:fixed;bor
   .slot .sess{padding:5px 6px}
 }
 .sheet{position:fixed;inset:0;z-index:30;background:transparent;display:flex;justify-content:center;padding:0 max(12px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));align-items:flex-start;padding-bottom:0}
-.sheetin{width:min(720px,100%);display:flex;gap:6px;flex-direction:column;max-height:86vh}
+.sheetin{width:min(720px,100%);display:flex;gap:6px;flex-direction:column;max-height:calc(100vh - var(--bbar-h,70px) - 24px)}
 .sheetin .ptitle{font-size:1.08rem;line-height:1.45}
 .sheetin .ptitle .ja{font-size:1rem}
 .sheetin .talk{font-size:1rem;line-height:1.5;padding:10px 0}
@@ -588,7 +588,7 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
   .tth,.ttb{grid-template-columns:18px repeat(var(--nr,4),minmax(0,1fr));gap:3px}
   .tick{font-size:.7rem}
 }
-.sdim{position:fixed;inset:0;background:rgba(20,22,50,.38);pointer-events:none}
+.sdim{position:fixed;inset:0;background:rgba(20,22,50,.07);pointer-events:none} /* 暗幕は薄く（暗くしない） */
 .sheetin{backface-visibility:hidden}
 </style>
 
@@ -724,7 +724,7 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
       o.talks.forEach(x=>{const hit=filtering?match(x,terms):null;p+=`<li class="talk${hit===true?' hit':hit===false?' miss':''}"><span class="tc">${esc(x.code)}</span>${hl(x.title,terms)}${x.ja?`<div class="ja">${hl(x.ja,terms)}</div>`:''}${x.speaker||x.affil?`<div class="who">${hl(x.speaker,terms)}${x.affil?`（${hl(x.affil,terms)}）`:''}</div>`:''}${tagsOf(x)}${(x.abs||x.abs_ja||x.absja)?`<details class="tabs2"><summary>要旨</summary><div class="abs">${hl(x.abs_ja||x.absja||x.abs,terms)}</div></details>`:''}</li>`});
       $('sbody').innerHTML='<div class="sbin">'+p+'</ul></div>';$('sbody').dataset.kind=KIND[o.s.kind]||'';sh.hidden=false;
       const si=sh.firstElementChild;si.style.marginTop='0px';
-      (()=>{const btn=out.querySelector(`.sess[aria-expanded="true"]`);const vh=window.innerHeight,h=si.offsetHeight;let top;
+      (()=>{const btn=out.querySelector(`.sess[aria-expanded="true"]`);const bb=document.getElementById('bbar');const vh=window.innerHeight-(bb?bb.offsetHeight:0),h=si.offsetHeight;let top; /* 下のバーに隠れない範囲で置く */
         if(btn){const r=btn.getBoundingClientRect();top=r.bottom+8;if(top+h>vh-12){const up=r.top-h-8;top=up>=12?up:Math.max(12,vh-h-12)}}else top=Math.max(12,(vh-h)/2);
         si.style.marginTop=Math.round(top)+'px';
         if(animKey!==openKey){animKey=openKey;if(!calm&&si.animate){const sr=si.getBoundingClientRect();si.style.transformOrigin='50% 50%';
