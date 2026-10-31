@@ -591,6 +591,11 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
 .sdim{position:fixed;inset:0;z-index:0;background:rgba(20,22,50,.38);pointer-events:none} /* 暗幕はフロートの下に敷く（フロート自体は暗くしない） */
 .sheetin{position:relative;z-index:1}
 .sheetin{backface-visibility:hidden}
+.srow{display:flex;gap:6px;align-items:center;min-width:0}
+.srow input[type=search]{flex:1 1 120px;min-width:0}
+.srow #langs{flex:none;gap:4px}
+.srow .count{margin-left:0;white-space:nowrap}
+@media (max-width:520px){.srow .count{display:none}.srow #langs .tab{padding:6px 8px}}
 </style>
 
 <div class="wrap">
@@ -599,10 +604,9 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
   <div class="bar" id="bar"><h1 style="display:flex;align-items:center;gap:6px;margin:0"><img class="y" src="https://raw.githubusercontent.com/suisuinaomasa0220-svg/jshg2026/main/icon-192.png" alt="JSHG" width="36" height="36">時間割<a class="swlink" href="#poster" style="margin-left:auto;flex:none;font-family:var(--font);font-weight:800;font-size:.8rem;color:#fff;background:var(--accent);border-radius:999px;padding:4px 12px;text-decoration:none;white-space:nowrap">ポスター →</a></h1>
     <div class="drow"><div class="tabs" id="tabs"></div><div class="vseg" id="minib" role="group" aria-label="表示の大きさ"><button type="button" data-m="0" aria-pressed="true">詳細</button><button type="button" data-m="1" aria-pressed="false">全体</button></div><button type="button" class="btog" id="btog" aria-expanded="true"><span class="bsum" id="bsum"></span><span class="chev" id="chev">絞込 ▲</span></button></div>
     <div class="bbody" id="bbody">
-    <div class="frow"><span class="fl">検索</span><div class="fc row"><input type="search" id="q" placeholder="スペース区切りでAND（英日可）"><span class="count" id="count"></span></div></div>
+    <div class="srow"><input type="search" id="q" placeholder="検索（スペース区切りでAND）"><div class="tabs" id="langs"></div><span class="count" id="count"></span></div>
     <details class="tagsec" id="tagsec"><summary><span class="fl">タグ</span><span class="tsum" id="tsum">なし</span></summary><div class="fc chips" id="chips"></div></details>
-    <div class="frow"><span class="fl">言語</span><div class="fc tabs" id="langs"></div></div>
-    <details class="more" id="more"><summary>出席マークの設定</summary>
+    <details class="more" id="more" hidden><summary>出席マークの設定</summary>
       <div class="frow"><span class="fl">出席</span><div class="fc labels"><input id="la" placeholder="名前A" aria-label="A の名前"> <input id="lb" placeholder="名前B" aria-label="B の名前"><button class="tab" id="copy" type="button">動線をテキストでコピー</button><span class="status" id="status"></span></div></div>
     </details>
     </div>
@@ -630,7 +634,7 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
   let pendingNewer=false,animKey=null;try{const pd=JSON.parse(localStorage.getItem('jshg2026pending')||'null');if(pd&&pd.ts>(STATE.ts||0)){plan=pd.plan||plan;labels=Object.assign(labels,pd.labels||{});pendingNewer=true}else localStorage.removeItem('jshg2026pending')}catch(e){}
   const la=$('la'),lb=$('lb'),status=$('status');
   DAYS.forEach((d,i)=>{const b=document.createElement('button');b.className='tab';b.textContent=d;b.dataset.s=d.replace(/^\d+\/(\d+)\((.)\)$/,'$1$2');b.setAttribute('aria-pressed',i===0);b.onclick=()=>{day=d;[...tabs.children].forEach(x=>x.setAttribute('aria-pressed',x===b));render()};tabs.appendChild(b)});
-  [['','すべて'],['EN','English'],['JP','日本語']].forEach(([v,t],i)=>{const b=document.createElement('button');b.className='tab';b.textContent=t;b.setAttribute('aria-pressed',i===0);b.onclick=()=>{langSel.value=v;[...$('langs').children].forEach(x=>x.setAttribute('aria-pressed',x===b));render()};$('langs').appendChild(b)});
+  [['','全部'],['EN','英語'],['JP','日本語']].forEach(([v,t],i)=>{const b=document.createElement('button');b.className='tab';b.textContent=t;b.setAttribute('aria-pressed',i===0);b.onclick=()=>{langSel.value=v;[...$('langs').children].forEach(x=>x.setAttribute('aria-pressed',x===b));render()};$('langs').appendChild(b)});
   const TSEL=new Set();try{(JSON.parse(localStorage.getItem('jshg2026tags')||'[]')).forEach(k=>TSEL.add(k))}catch(e){}
   /* 要旨（abs / abs_ja）がデータに入れば自動的に検索・タグ照合の対象になる */
   const absTxt=i=>(i.abs||'')+' '+(i.abs_ja||i.absja||'');
