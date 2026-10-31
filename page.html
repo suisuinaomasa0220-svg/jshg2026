@@ -342,9 +342,9 @@ body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;back
     <div class="drow"><div class="tabs" id="tabs"></div><div class="vseg" id="minib" role="group" aria-label="表示の大きさ"><button type="button" data-m="0" aria-pressed="true">詳細</button><button type="button" data-m="1" aria-pressed="false">全体</button></div><button type="button" class="btog" id="btog" aria-expanded="true"><span class="bsum" id="bsum"></span><span class="chev" id="chev">絞込 ▲</span></button></div>
     <div class="bbody" id="bbody">
     <div class="frow"><span class="fl">検索</span><div class="fc row"><input type="search" id="q" placeholder="スペース区切りでAND（英日可）"><span class="count" id="count"></span></div></div>
+    <div class="frow"><span class="fl">タグ</span><div class="fc chips" id="chips"></div></div>
     <div class="frow"><span class="fl">言語</span><div class="fc tabs" id="langs"></div></div>
-    <details class="more" id="more"><summary>分野・出席マークの設定</summary>
-      <div class="frow"><span class="fl">分野</span><div class="fc chips" id="chips"></div></div>
+    <details class="more" id="more"><summary>出席マークの設定</summary>
       <div class="frow"><span class="fl">出席</span><div class="fc labels"><input id="la" placeholder="名前A" aria-label="A の名前"> <input id="lb" placeholder="名前B" aria-label="B の名前"><button class="tab" id="copy" type="button">動線をテキストでコピー</button><span class="status" id="status"></span></div></div>
     </details>
     </div>
@@ -373,7 +373,14 @@ body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;back
   const la=$('la'),lb=$('lb'),status=$('status');
   DAYS.forEach((d,i)=>{const b=document.createElement('button');b.className='tab';b.textContent=d;b.dataset.s=d.replace(/^\d+\/(\d+)\((.)\)$/,'$1$2');b.setAttribute('aria-pressed',i===0);b.onclick=()=>{day=d;[...tabs.children].forEach(x=>x.setAttribute('aria-pressed',x===b));render()};tabs.appendChild(b)});
   [['','すべて'],['EN','English'],['JP','日本語']].forEach(([v,t],i)=>{const b=document.createElement('button');b.className='tab';b.textContent=t;b.setAttribute('aria-pressed',i===0);b.onclick=()=>{langSel.value=v;[...$('langs').children].forEach(x=>x.setAttribute('aria-pressed',x===b));render()};$('langs').appendChild(b)});
-  CHIPS.forEach(c=>{const b=document.createElement('button');b.className='chip';b.textContent=c;b.onclick=()=>{q.value=c;render()};chips.appendChild(b)});
+  const TSEL=new Set();try{(JSON.parse(localStorage.getItem('jshg2026tags')||'[]')).forEach(k=>TSEL.add(k))}catch(e){}
+  const tagHit=(i,t)=>t.re.test(t.field==='affil'?(i.affil||''):t.field==='authors'?((i.speaker||'')+' '+(i.chairs||'')):(i.session+' '+(SJA[i.code.split('-')[0]]||'')+' '+i.title+' '+i.ja));
+  const tagsOfTalk=i=>typeof TAGS==='undefined'?[]:TAGS.filter(t=>tagHit(i,t));
+  function buildChips(){if(typeof TAGS==='undefined')return;chips.innerHTML='';
+    TAGS.forEach(t=>{const b=document.createElement('button');b.className='chip';b.type='button';b.textContent=t.label;b.title=t.desc;b.setAttribute('aria-pressed',TSEL.has(t.key));
+      b.onclick=()=>{if(TSEL.has(t.key))TSEL.delete(t.key);else TSEL.add(t.key);b.setAttribute('aria-pressed',TSEL.has(t.key));try{localStorage.setItem('jshg2026tags',JSON.stringify([...TSEL]))}catch(e){};render()};chips.appendChild(b)});
+    const c=document.createElement('button');c.className='chip clr';c.type='button';c.textContent='解除';c.onclick=()=>{TSEL.clear();buildChips();try{localStorage.removeItem('jshg2026tags')}catch(e){};render()};chips.appendChild(c)}
+  document.addEventListener('DOMContentLoaded',()=>{buildChips();if(TSEL.size)render()});
   try{const s=localStorage.getItem('jshg2026q');if(s)q.value=s}catch(e){}
   const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const rx=t=>new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'gi');
@@ -382,7 +389,9 @@ body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;back
   const match=(i,terms)=>{
     if(langSel.value&&i.lang!==langSel.value)return false;
     const hay=(i.session+' '+(SJA[i.code.split('-')[0]]||'')+' '+i.title+' '+i.ja+' '+i.speaker+' '+i.affil+' '+i.chairs+' '+i.code).toLowerCase();
-    return terms.every(t=>hay.includes(t.toLowerCase()));
+    if(!terms.every(t=>hay.includes(t.toLowerCase())))return false;
+    if(TSEL.size&&typeof TAGS!=='undefined'){const ts=TAGS.filter(t=>TSEL.has(t.key));if(!ts.some(t=>tagHit(i,t)))return false}
+    return true;
   };
   const picks=code=>{const p=plan[code]||{};return `<div class="who2"><button class="pick a" data-p="a" data-c="${esc(code)}" aria-pressed="${!!p.a}" ${ROLE==='a'?'':'disabled'}>${esc(labels.a||'A')}</button><button class="pick b" data-p="b" data-c="${esc(code)}" aria-pressed="${!!p.b}" ${ROLE==='b'?'':'disabled'}>${esc(labels.b||'B')}</button></div>`};
   const byCode=new Map();items.forEach(i=>{const c=i.code.split('-')[0];if(!byCode.has(c))byCode.set(c,i)});
@@ -405,13 +414,13 @@ body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;back
     const keep={};out.querySelectorAll('.scroll').forEach(e=>{keep[e.dataset.d]=e.scrollLeft});
     const terms=q.value.trim().split(/\s+/).filter(Boolean);
     try{localStorage.setItem('jshg2026q',q.value)}catch(e){}
-    const filtering=terms.length>0||!!langSel.value;
+    const filtering=terms.length>0||!!langSel.value||TSEL.size>0;
     let total=0;
     // sessions keyed by date|time|room
     const sess=new Map();
     items.forEach(i=>{const k=i.date+'|'+i.time+'|'+i.room;if(!sess.has(k))sess.set(k,{s:i,talks:[],hits:0});const o=sess.get(k);o.talks.push(i);if(match(i,terms)){o.hits++;total++}});
     count.textContent=filtering?`${total} / ${items.length} 演題が該当`:`${items.length} 演題`;
-    $('bsum').textContent=`絞り込み：${day||'全日'}・${({'':'全言語',EN:'English',JP:'日本語'})[langSel.value]}${terms.length?'・「'+terms.join(' ')+'」':''}・${filtering?total+'件':items.length+'演題'}`;
+    $('bsum').textContent=`絞り込み：${day||'全日'}・${({'':'全言語',EN:'English',JP:'日本語'})[langSel.value]}${TSEL.size&&typeof TAGS!=='undefined'?'・'+TAGS.filter(t=>TSEL.has(t.key)).map(t=>t.label).join('/'):''}${terms.length?'・「'+terms.join(' ')+'」':''}・${filtering?total+'件':items.length+'演題'}`;
     let html='', openSess=null;
     const PX=document.body.classList.contains('mini')?1.05:(window.innerWidth<=520?1.9:2.3);
     const tm=t=>{const[a,b]=t.split(':').map(Number);return a*60+b};
@@ -450,7 +459,7 @@ body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;back
     const sh=$('sheet');
     if(openSess){const o=openSess;
       let p=`${o.s.kind==='シンポジウム'?`<div class="ptitle">${hl(o.s.session.replace(/^S\d+\s*/,''),terms)}${SJA[o.s.code.split('-')[0]]?`<div class="ja">${hl(SJA[o.s.code.split('-')[0]],terms)}</div>`:''}</div>`:''}<div class="chairs">${esc(o.s.kind)}　${esc(o.s.date)} ${esc(o.s.time)}　${esc(o.s.room)}${o.s.chairs?`　座長：${hl(o.s.chairs,terms)}`:''}</div><ul class="talks">`;
-      const tagsOf=x=>{if(typeof TAGS==='undefined')return '';const txt=[x.title,x.ja].join(' ');const t=TAGS.filter(t=>t.re.test(t.field==='affil'?(x.affil||''):t.field==='authors'?(x.speaker||''):txt));return t.length?`<div class="ttags">${t.map(t=>`<span class="ttag">${esc(t.label)}</span>`).join('')}</div>`:''};
+      const tagsOf=x=>{const t=tagsOfTalk(x);return t.length?`<div class="ttags">${t.map(t=>`<span class="ttag">${esc(t.label)}</span>`).join('')}</div>`:''};
       o.talks.forEach(x=>{p+=`<li class="talk"><span class="tc">${esc(x.code)}</span>${hl(x.title,terms)}${x.ja?`<div class="ja">${hl(x.ja,terms)}</div>`:''}${x.speaker||x.affil?`<div class="who">${hl(x.speaker,terms)}${x.affil?`（${hl(x.affil,terms)}）`:''}</div>`:''}${tagsOf(x)}</li>`});
       $('sbody').innerHTML=p+'</ul>';$('sbody').dataset.kind=KIND[o.s.kind]||'';sh.hidden=false;
       const si=sh.firstElementChild;si.style.marginTop='0px';
@@ -977,6 +986,9 @@ body.role-b .rtog .a{order:2}
 /* 時間割の詳細フロート：ポスターと同じタグを演題ごとに表示*/
 .talk .ttags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
 .talk .ttag{font-size:.7rem;font-weight:700;line-height:1;padding:3px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+
+.chips .chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.chips .chip.clr{background:transparent;border-style:dashed}
 </style>
 <script>
 (function(){
@@ -1048,6 +1060,7 @@ const TAGS=[
  {key:"longread",label:"ロングリード",desc:"ロングリードシーケンス・構造多型（SV）",re:/long-read|ロングリード|structural variant|構造多型|\bSVs?\b|nanopore|ナノポア|PacBio|HiFi/i}
 ];
 const KW=TAGS.filter(t=>!t.field);
+window.TAGS=TAGS; /* 時間割側のタグ絞り込み・フロート表示で共用 */
 /* 日付：本番は演題番号の先頭 P1/P2/P3 で判定。モックは番号順に3日へ割り振り */
 const PDAYS=[{k:"1",label:"11/19(木)",short:"19木",disc:"16:00–17:00"},{k:"2",label:"11/20(金)",short:"20金",disc:"15:30–16:30"},{k:"3",label:"11/21(土)",short:"21土",disc:"14:20–15:20"}];
 function dayOf(p,i){const m=String(p.code).match(/^P([123])-/);return m?m[1]:String(i%3+1)}
