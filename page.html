@@ -450,7 +450,8 @@ body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;back
     const sh=$('sheet');
     if(openSess){const o=openSess;
       let p=`${o.s.kind==='シンポジウム'?`<div class="ptitle">${hl(o.s.session.replace(/^S\d+\s*/,''),terms)}${SJA[o.s.code.split('-')[0]]?`<div class="ja">${hl(SJA[o.s.code.split('-')[0]],terms)}</div>`:''}</div>`:''}<div class="chairs">${esc(o.s.kind)}　${esc(o.s.date)} ${esc(o.s.time)}　${esc(o.s.room)}${o.s.chairs?`　座長：${hl(o.s.chairs,terms)}`:''}</div><ul class="talks">`;
-      o.talks.forEach(x=>{p+=`<li class="talk"><span class="tc">${esc(x.code)}</span>${hl(x.title,terms)}${x.ja?`<div class="ja">${hl(x.ja,terms)}</div>`:''}${x.speaker||x.affil?`<div class="who">${hl(x.speaker,terms)}${x.affil?`（${hl(x.affil,terms)}）`:''}</div>`:''}</li>`});
+      const tagsOf=x=>{if(typeof TAGS==='undefined')return '';const txt=[x.title,x.ja].join(' ');const t=TAGS.filter(t=>t.re.test(t.field==='affil'?(x.affil||''):t.field==='authors'?(x.speaker||''):txt));return t.length?`<div class="ttags">${t.map(t=>`<span class="ttag${t.hot?' hot':''}">${t.hot?'★':''}${esc(t.label)}</span>`).join('')}</div>`:''};
+      o.talks.forEach(x=>{p+=`<li class="talk"><span class="tc">${esc(x.code)}</span>${hl(x.title,terms)}${x.ja?`<div class="ja">${hl(x.ja,terms)}</div>`:''}${x.speaker||x.affil?`<div class="who">${hl(x.speaker,terms)}${x.affil?`（${hl(x.affil,terms)}）`:''}</div>`:''}${tagsOf(x)}</li>`});
       $('sbody').innerHTML=p+'</ul>';$('sbody').dataset.kind=KIND[o.s.kind]||'';sh.hidden=false;
       const si=sh.firstElementChild;si.style.marginTop='0px';
       (()=>{const btn=out.querySelector(`.sess[aria-expanded="true"]`);const vh=window.innerHeight,h=si.offsetHeight;let top;
@@ -972,6 +973,11 @@ body.role-b .rtog .a{order:2}
 .rtog button.a[data-s="1"]{background:var(--panel);border-color:var(--pa);color:var(--pa)}
 .rtog button.b[data-s="1"]{background:var(--panel);border-color:var(--pb);color:var(--pb)}
 .rtog button[data-s="0"]{background:var(--chip);border-color:var(--line);color:var(--muted);opacity:.6}
+
+/* 時間割の詳細フロート：ポスターと同じタグを演題ごとに表示（★＝注目） */
+.talk .ttags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.talk .ttag{font-size:.7rem;font-weight:700;line-height:1;padding:3px 7px;border-radius:999px;background:var(--chip);color:var(--muted);border:1px solid var(--line)}
+.talk .ttag.hot{background:var(--accent-soft);color:var(--accent);border-color:transparent}
 </style>
 <script>
 (function(){
