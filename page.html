@@ -963,12 +963,13 @@ body.role-b #pv .foot .pick.b{order:-1}
 body.role-b .rtog .a{order:2}
 
 /* 3段階ボタン：2=塗り＋線マーク 1=枠線のみ 0=グレー */
-.rtog button::after{content:'';display:inline-block;margin-left:5px;vertical-align:middle;width:16px;height:0;border-top:3px solid currentColor;border-radius:2px;opacity:.9;transition:width .2s}
-.rtog button[data-s="1"]::after{width:7px;height:7px;border:0;border-radius:50%;background:currentColor}
-.rtog button[data-s="0"]::after{width:0;margin-left:0;border:0}
+.rtog button{min-width:104px;width:104px;box-sizing:border-box;padding-left:0;padding-right:0;display:inline-flex;align-items:center;justify-content:center}
+.rtog button::after{content:'';display:inline-block;box-sizing:border-box;margin-left:6px;width:16px;height:7px;border:0;border-top:3px solid currentColor;border-bottom:0;border-radius:2px;opacity:.9;flex:none;background:transparent}
+.rtog button[data-s="1"]::after{border:0;border-radius:50%;background:radial-gradient(circle,currentColor 0 3.5px,transparent 3.6px)}
+.rtog button[data-s="0"]::after{border:0;background:transparent}
 .rtog button.a[data-s="1"]{background:var(--panel);border-color:var(--pa);color:var(--pa)}
 .rtog button.b[data-s="1"]{background:var(--panel);border-color:var(--pb);color:var(--pb)}
-.rtog button[data-s="0"]{background:var(--chip);border-color:var(--line);color:var(--muted);text-decoration:line-through}
+.rtog button[data-s="0"]{background:var(--chip);border-color:var(--line);color:var(--muted);opacity:.6}
 </style>
 <script>
 (function(){
