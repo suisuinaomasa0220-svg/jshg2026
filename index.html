@@ -22,12 +22,17 @@ iframe{position:fixed;inset:0;width:100%;height:100%;border:0;display:block}
 <script>
 (function(){
   var APP='https://script.google.com/macros/s/AKfycbwS_HuiKN-y25P81uKLdWjEeP3CFv1B8QJNATG3HKU46UmUjSVF4OBVTarwGhiwZajQ/exec';
-  // インストール（ホーム画面追加）後は start_url で開かれ ?k= が落ちるので、最後に使ったキーをこの端末に覚えておく
+  // キーの扱い：
+  //  ・URLに ?k= があれば、それを使い、この端末に覚える（ホーム画面アイコン用）
+  //  ・?k= がなく、ホーム画面アイコンから開いたとき（standalone）だけ、覚えたキーを使う
+  //  ・?k= がなく、普通のリンクとして開いたとき（みんな用リンク）は、覚えたキーを使わず閲覧用で開く
   var q=location.search||'';
   var m=/[?&]k=([^&]+)/.exec(q);
+  var standalone=false;
+  try{standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true}catch(e){}
   try{
     if(m){localStorage.setItem('jshg2026k',m[1]);}
-    else{var k=localStorage.getItem('jshg2026k');if(k){q='?k='+k;}}
+    else if(standalone){var k=localStorage.getItem('jshg2026k');if(k){q='?k='+k;}}
   }catch(e){}
   var f=document.createElement('iframe');
   f.src=APP+q+location.hash;
