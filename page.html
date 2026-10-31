@@ -1002,10 +1002,11 @@ body.role-b .rtog .a{order:2}
 body:has(.sheet:not([hidden])) .rtog{display:none}
 /* タグチップ：同じ大きさで格子状に並べる。全部／解除は先頭 */
 #chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:100%}
-@media (min-width:700px){#chips{grid-template-columns:repeat(7,minmax(0,1fr))}}
+
 #chips .chip{box-sizing:border-box;width:100%;height:32px;padding:0 4px;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;justify-content:center;white-space:nowrap;font-size:.78rem;font-weight:700;border:1.5px solid var(--line);background:var(--panel);color:var(--fg)}
 #chips .chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
-#chips .chip.clr{background:var(--chip);border-style:dashed;color:var(--muted)}
+#chips .chip.clr{grid-column:span 2;background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-size:.84rem}
+@media (min-width:700px){#chips .chip.clr{grid-column:span 3}#chips{grid-template-columns:repeat(6,minmax(0,1fr))}}
 /* タグ絞込は折りたたみ（選択中タグを見出しに表示） */
 .tagsec{margin:4px 0}
 .tagsec summary{display:flex;align-items:center;gap:8px;cursor:pointer;list-style:none;padding:4px 0}
