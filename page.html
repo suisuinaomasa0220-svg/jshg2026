@@ -450,7 +450,7 @@ body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;back
     const sh=$('sheet');
     if(openSess){const o=openSess;
       let p=`${o.s.kind==='シンポジウム'?`<div class="ptitle">${hl(o.s.session.replace(/^S\d+\s*/,''),terms)}${SJA[o.s.code.split('-')[0]]?`<div class="ja">${hl(SJA[o.s.code.split('-')[0]],terms)}</div>`:''}</div>`:''}<div class="chairs">${esc(o.s.kind)}　${esc(o.s.date)} ${esc(o.s.time)}　${esc(o.s.room)}${o.s.chairs?`　座長：${hl(o.s.chairs,terms)}`:''}</div><ul class="talks">`;
-      const tagsOf=x=>{if(typeof TAGS==='undefined')return '';const txt=[x.title,x.ja].join(' ');const t=TAGS.filter(t=>t.re.test(t.field==='affil'?(x.affil||''):t.field==='authors'?(x.speaker||''):txt));return t.length?`<div class="ttags">${t.map(t=>`<span class="ttag${t.hot?' hot':''}">${t.hot?'★':''}${esc(t.label)}</span>`).join('')}</div>`:''};
+      const tagsOf=x=>{if(typeof TAGS==='undefined')return '';const txt=[x.title,x.ja].join(' ');const t=TAGS.filter(t=>t.re.test(t.field==='affil'?(x.affil||''):t.field==='authors'?(x.speaker||''):txt));return t.length?`<div class="ttags">${t.map(t=>`<span class="ttag">${esc(t.label)}</span>`).join('')}</div>`:''};
       o.talks.forEach(x=>{p+=`<li class="talk"><span class="tc">${esc(x.code)}</span>${hl(x.title,terms)}${x.ja?`<div class="ja">${hl(x.ja,terms)}</div>`:''}${x.speaker||x.affil?`<div class="who">${hl(x.speaker,terms)}${x.affil?`（${hl(x.affil,terms)}）`:''}</div>`:''}${tagsOf(x)}</li>`});
       $('sbody').innerHTML=p+'</ul>';$('sbody').dataset.kind=KIND[o.s.kind]||'';sh.hidden=false;
       const si=sh.firstElementChild;si.style.marginTop='0px';
@@ -718,7 +718,7 @@ body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;back
     <div class="frow"><span class="fl">検索</span><div class="row"><input type="search" id="pq" placeholder="演題名・所属・抄録をAND検索"><span class="count" id="pcount"></span></div></div>
     <div class="frow"><span class="fl">絞込</span><div class="prow2"><div class="tabs pdays" id="ppdays"></div><span class="psep"></span><div class="tabs" id="ptiers"></div></div></div>
     <p class="tabdesc" id="ptabdesc"></p>
-    <details class="kwdef" id="pkwdef"><summary>タグの定義（注目＝★）</summary><ul id="pkwlist"></ul></details>
+    <details class="kwdef" id="pkwdef"><summary>タグの定義</summary><ul id="pkwlist"></ul></details>
     <div class="frow pthemerow" id="pthemerow"><button type="button" class="fl pthtog" id="pthtog" aria-expanded="false">テーマ ▾</button><div class="chipwrap" id="pchipwrap"><div class="chips" id="pthemes"></div><button type="button" class="sarr l" id="psarrl" aria-label="左へ" tabindex="-1">‹</button><button type="button" class="sarr r" id="psarrr" aria-label="右へ" tabindex="-1">›</button></div></div>
   </div>
 
@@ -974,10 +974,9 @@ body.role-b .rtog .a{order:2}
 .rtog button.b[data-s="1"]{background:var(--panel);border-color:var(--pb);color:var(--pb)}
 .rtog button[data-s="0"]{background:var(--chip);border-color:var(--line);color:var(--muted);opacity:.6}
 
-/* 時間割の詳細フロート：ポスターと同じタグを演題ごとに表示（★＝注目） */
+/* 時間割の詳細フロート：ポスターと同じタグを演題ごとに表示*/
 .talk .ttags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
-.talk .ttag{font-size:.7rem;font-weight:700;line-height:1;padding:3px 7px;border-radius:999px;background:var(--chip);color:var(--muted);border:1px solid var(--line)}
-.talk .ttag.hot{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.talk .ttag{font-size:.7rem;font-weight:700;line-height:1;padding:3px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
 </style>
 <script>
 (function(){
@@ -1027,26 +1026,26 @@ const RE_COMPANY=/株式会社|有限会社|\(株\)|（株）|Co\.,? ?Ltd|Inc\.|
 const RE_GWAS=/GWAS|genome-wide association|ゲノムワイド関連|polygenic|\bPRS\b|ポリジェニック|fine-mapping|ファインマッピング|heritability|遺伝率/i;
 /* タグ：各演題に当てはまるものを全部付ける。hot=true が「注目」。当たった数が多いほど上に並ぶ */
 const TAGS=[
- {key:"pharma",label:"製薬企業",hot:true,desc:"所属に製薬企業名（国内・海外の主要製薬、Pharma/Therapeutics など）",field:"affil",re:RE_PHARMA},
- {key:"prof",label:"注目の先生",hot:true,desc:"岡田随象先生・鎌谷洋一郎先生が著者に入っている",field:"authors",re:/岡田\s*随象|Yukinori\s+Okada|鎌谷\s*洋一郎|Yoichiro\s+Kamatani/i},
- {key:"gwas",label:"GWAS",hot:true,desc:"GWAS・多因子疾患・PRS・fine-mapping・遺伝率",re:RE_GWAS},
- {key:"drug",label:"創薬",hot:true,desc:"創薬標的・治療標的・メンデルランダム化・PheWAS・colocalization・リポジショニング・薬理遺伝学（PGx/CYP）",re:/drug target|therapeutic target|target discovery|創薬|治療標的|Mendelian randomi[sz]ation|メンデルランダム|\bMR\b|PheWAS|colocali[sz]ation|\bcoloc\b|repurpos|リポジショニング|druggab|pharmacogen|薬理遺伝|\bCYP\d|\bPGx\b/i},
- {key:"omics",label:"オミクス",hot:true,desc:"遺伝子発現（RNA-seq・シングルセル・eQTL/sQTL・TWAS・スプライシング）とプロテオーム・メタボローム・マルチオミクス",re:/RNA-seq|transcriptom|トランスクリプトーム|single[- ]cell|scRNA|シングルセル|\bTWAS\b|splic|スプライシング|\beQTL|\bsQTL|遺伝子発現|proteom|プロテオ|metabolom|メタボロ|multi-?omics|マルチオミクス/i},
- {key:"bb",label:"バイオバンク",hot:true,desc:"バイオバンク・BBJ・ToMMo（東北メディカル・メガバンク）",re:/biobank|バイオバンク|\bBBJ\b|ToMMo|東北メディカル/i},
- {key:"cell",label:"細胞モデル",hot:true,desc:"オルガノイド・アセンブロイド・臓器チップ・iPS細胞・CRISPR/ゲノム編集・Perturb-seq",re:(()=>{const a=/\biPSCs?\b|\bhiPSCs?\b|\biPS\b/,b=/organoids?|オルガノイド|assembloids?|アセンブロイド|organ-on-(a-)?chip|臓器チップ|iPS細胞|induced pluripotent stem|人工多能性幹細胞|CRISPR|クリスパー|\bCas9\b|\bCas12|\bCas13|キャス9|genome[- ]edit|ゲノム編集|base edit|塩基編集|prime edit|プライム編集|Perturb-seq/i;return {test:s=>a.test(s)||b.test(s)}})()},
- {key:"ono",label:"小野製品",hot:true,desc:"小野薬品の販売製品（オプジーボ・フォシーガ・ベレキシブル など）の製品名・一般名・標的",re:(()=>{
+ {key:"pharma",label:"製薬企業",desc:"所属に製薬企業名（国内・海外の主要製薬、Pharma/Therapeutics など）",field:"affil",re:RE_PHARMA},
+ {key:"prof",label:"注目の先生",desc:"岡田随象先生・鎌谷洋一郎先生が著者に入っている",field:"authors",re:/岡田\s*随象|Yukinori\s+Okada|鎌谷\s*洋一郎|Yoichiro\s+Kamatani/i},
+ {key:"gwas",label:"GWAS",desc:"GWAS・多因子疾患・PRS・fine-mapping・遺伝率",re:RE_GWAS},
+ {key:"drug",label:"創薬",desc:"創薬標的・治療標的・メンデルランダム化・PheWAS・colocalization・リポジショニング・薬理遺伝学（PGx/CYP）",re:/drug target|therapeutic target|target discovery|創薬|治療標的|Mendelian randomi[sz]ation|メンデルランダム|\bMR\b|PheWAS|colocali[sz]ation|\bcoloc\b|repurpos|リポジショニング|druggab|pharmacogen|薬理遺伝|\bCYP\d|\bPGx\b/i},
+ {key:"omics",label:"オミクス",desc:"遺伝子発現（RNA-seq・シングルセル・eQTL/sQTL・TWAS・スプライシング）とプロテオーム・メタボローム・マルチオミクス",re:/RNA-seq|transcriptom|トランスクリプトーム|single[- ]cell|scRNA|シングルセル|\bTWAS\b|splic|スプライシング|\beQTL|\bsQTL|遺伝子発現|proteom|プロテオ|metabolom|メタボロ|multi-?omics|マルチオミクス/i},
+ {key:"bb",label:"バイオバンク",desc:"バイオバンク・BBJ・ToMMo（東北メディカル・メガバンク）",re:/biobank|バイオバンク|\bBBJ\b|ToMMo|東北メディカル/i},
+ {key:"cell",label:"細胞モデル",desc:"オルガノイド・アセンブロイド・臓器チップ・iPS細胞・CRISPR/ゲノム編集・Perturb-seq",re:(()=>{const a=/\biPSCs?\b|\bhiPSCs?\b|\biPS\b/,b=/organoids?|オルガノイド|assembloids?|アセンブロイド|organ-on-(a-)?chip|臓器チップ|iPS細胞|induced pluripotent stem|人工多能性幹細胞|CRISPR|クリスパー|\bCas9\b|\bCas12|\bCas13|キャス9|genome[- ]edit|ゲノム編集|base edit|塩基編集|prime edit|プライム編集|Perturb-seq/i;return {test:s=>a.test(s)||b.test(s)}})()},
+ {key:"ono",label:"小野製品",desc:"小野薬品の販売製品（オプジーボ・フォシーガ・ベレキシブル など）の製品名・一般名・標的",re:(()=>{
    /* 小野薬品の販売製品（2025年度決算資料ほか）：製品名・一般名・標的 */
    const names=/オプジーボ|Opdivo|ニボルマブ|nivolumab|フォシーガ|Forxiga|Farxiga|ダパグリフロジン|dapagliflozin|オレンシア|Orencia|アバタセプト|abatacept|グラクティブ|シタグリプチン|sitagliptin|ベレキシブル|Velexbru|チラブルチニブ|tirabrutinib|オンジェンティス|Ongentys|オピカポン|opicapone|パーサビブ|Parsabiv|エテルカルセチド|etelcalcetide|カイプロリス|Kyprolis|カルフィルゾミブ|carfilzomib|ビラフトビ|Braftovi|エンコラフェニブ|encorafenib|キンロック|Qinlock|リプレチニブ|ripretinib|ロンビムザ|Romvimza|ビムセルチニブ|vimseltinib|コアベータ|ランジオロール|landiolol|コララン|イバブラジン|ivabradine|デムサー|メチロシン|metyrosine/i;
    const targets=/PD-1|PD-L1|PDCD1|SGLT2|SLC5A2|DPP-?4|CD80|CD86|CTLA-?4|\bBTK\b|\bCOMT\b|CaSR|calcium-sensing receptor|カルシウム感知受容体|proteasome|プロテアソーム|\bBRAF\b|\bKIT\b|PDGFRA|CSF-?1R|ADRB1|β1受容体|HCN4|tyrosine hydroxylase|チロシン水酸化酵素/;
    return {test:s=>names.test(s)||targets.test(s)};
  })()},
- {key:"ai",label:"AI",hot:true,desc:"機械学習・LLM・生成AI・AIエージェント（ChatGPT/Claude/Gemini、Claude Code、AlphaFold など）",re:(()=>{
+ {key:"ai",label:"AI",desc:"機械学習・LLM・生成AI・AIエージェント（ChatGPT/Claude/Gemini、Claude Code、AlphaFold など）",re:(()=>{
    const words=/machine learning|機械学習|deep learning|深層学習|\bLLMs?\b|large language models?|大規模言語モデル|生成AI|generative AI|foundation models?|基盤モデル|人工知能|transformer|ChatGPT|チャットGPT|\bGPT-?[345]|GPT-4o|OpenAI|Anthropic|\bClaude\b(?! Bernard)|クロード|Google Gemini|Gemini (Pro|Ultra|Flash|[0-9])|ジェミニ|\bLlama ?[0-9]|LLaMA|\bMistral\b|DeepSeek|\bQwen|Perplexity|NotebookLM|BioGPT|Med-?PaLM|Med-Gemini|AlphaFold|agentic|\bAI agents?\b|LLM[- ]agents?|autonomous agents?|multi-agent|AIエージェント|エージェント型|エージェンティック|自律型AI|Claude Code|Gemini CLI|OpenHands|LangChain|LangGraph|CrewAI|AutoGen|Model Context Protocol|\bBiomni\b|Coscientist|AI co-scientist/i;
    const cased=/\bAI\b|\bCodex\b|\bCursor\b(?! position)/;
    return {test:s=>words.test(s)||cased.test(s)};
  })()},
- {key:"ethics",label:"倫理・規制",hot:true,desc:"倫理・ELSI・遺伝カウンセリング・同意・匿名化・個人情報保護法・次世代医療基盤法・ゲノム医療推進法・HIPAA・GINA・GDPR・EHDS・data sharing/governance",re:/ethic|倫理|\bELSI\b|counsel|カウンセリング|informed consent|インフォームド|同意|anonymi[sz]|pseudonymi[sz]|匿名化|仮名化|個人情報|privacy|プライバシー|次世代医療基盤|ゲノム医療推進|遺伝情報差別|genetic discrimination|\bHIPAA\b|\bGINA\b|\bGDPR\b|\bEHDS\b|AI Act|data (sharing|governance)|データ(共有|ガバナンス)|regulat|規制|guideline|ガイドライン|\bCLIA\b/i},
- {key:"longread",label:"ロングリード",hot:false,desc:"ロングリードシーケンス・構造多型（SV）",re:/long-read|ロングリード|structural variant|構造多型|\bSVs?\b|nanopore|ナノポア|PacBio|HiFi/i}
+ {key:"ethics",label:"倫理・規制",desc:"倫理・ELSI・遺伝カウンセリング・同意・匿名化・個人情報保護法・次世代医療基盤法・ゲノム医療推進法・HIPAA・GINA・GDPR・EHDS・data sharing/governance",re:/ethic|倫理|\bELSI\b|counsel|カウンセリング|informed consent|インフォームド|同意|anonymi[sz]|pseudonymi[sz]|匿名化|仮名化|個人情報|privacy|プライバシー|次世代医療基盤|ゲノム医療推進|遺伝情報差別|genetic discrimination|\bHIPAA\b|\bGINA\b|\bGDPR\b|\bEHDS\b|AI Act|data (sharing|governance)|データ(共有|ガバナンス)|regulat|規制|guideline|ガイドライン|\bCLIA\b/i},
+ {key:"longread",label:"ロングリード",desc:"ロングリードシーケンス・構造多型（SV）",re:/long-read|ロングリード|structural variant|構造多型|\bSVs?\b|nanopore|ナノポア|PacBio|HiFi/i}
 ];
 const KW=TAGS.filter(t=>!t.field);
 /* 日付：本番は演題番号の先頭 P1/P2/P3 で判定。モックは番号順に3日へ割り振り */
@@ -1056,13 +1055,13 @@ function classify(p,i){
   const txt=[p.title,p.ja,p.abs].join(" ");
   const pharma=RE_PHARMA.test(p.affil);
   const tags=TAGS.filter(t=>t.re.test(t.field==="affil"?p.affil:t.field==="authors"?p.authors:txt));
-  const f={pharma,corp:!pharma&&RE_COMPANY.test(p.affil),profs:tags.filter(t=>t.key==="prof"),kw:tags.filter(t=>!t.field),hits:tags.filter(t=>t.hot)};
+  const f={pharma,corp:!pharma&&RE_COMPANY.test(p.affil),profs:tags.filter(t=>t.key==="prof"),kw:tags.filter(t=>!t.field),hits:tags};
   const tier=f.hits.length?"hot":"oth";
   const first=tags[0];
   return {...p,f,tags:tags.map(t=>t.label),theme:first?first.label:"その他",tier,day:dayOf(p,i)};
 }
 const DATA=POSTERS.map((p,i)=>classify(p,i)).sort((a,b)=>b.f.hits.length-a.f.hits.length);
-const TIERS={hot:{name:"注目",why:"注目タグ（製薬企業・注目の先生・GWAS・創薬・オミクス・バイオバンク・細胞モデル・小野製品・AI・倫理・規制）のどれかに当たる演題。当たった数が多い順"},oth:{name:"テーマ別",why:"上の条件に当たらない演題。テーマで絞って時間があれば"}};
+const TIERS={hot:{name:"タグあり",why:"キーワードタグのどれかに当たる演題。当たった数が多い順"},oth:{name:"テーマ別",why:"上の条件に当たらない演題。テーマで絞って時間があれば"}};
 
 /* ---------- local state (mock only) ---------- */
 const LS="jshg-poster-mock3";
@@ -1082,7 +1081,7 @@ function goers(code){
   return parts.length?'<div class="goers">'+parts.join("　")+'</div>':'';
 }
 function auShort(s){const a=String(s||'').split(/\s*[,、，;；]\s*/).map(x=>x.trim()).filter(Boolean);if(!a.length)return '';if(a.length===1)return hl(a[0]);if(a.length===2)return hl(a[0])+'、'+hl(a[1]);return hl(a[0])+' … '+hl(a[a.length-1])+'<span class="aun">（'+a.length+'名）</span>'}
-function why(p){const L=(p.f.hits||[]).map(x=>x.label);if(!L.length)return '';return '注目：'+L.slice(0,2).join('・')+(L.length>2?' +'+(L.length-2):'')}
+function why(p){const L=p.tags||[];if(!L.length)return '';return L.slice(0,3).join('・')+(L.length>3?' +'+(L.length-3):'')}
 function card(p){
   const m=S.marks[p.code]||{};const n=(S.memos[p.code]||[]).length;
   return `<article class="card t-${p.tier}" data-code="${p.code}">
@@ -1090,7 +1089,7 @@ function card(p){
       <div class="meta"><span class="code">${p.code}</span><span class="when">${PDAYS[p.day-1].short} ${(PDAYS[p.day-1].disc||'').split('–')[0]}</span><span class="why t-${p.tier}">${why(p)}</span></div>
       <div class="ja">${hl(p.ja)}</div><div class="ttl">${hl(p.title)}</div>
       <div class="au1">${auShort(p.authors)}</div>
-      <div class="aff">${hl(p.affil)}<span class="theme">${p.tags.map(esc).join("・")||"その他"}</span></div>
+      <div class="aff">${hl(p.affil)}</div>
     </button>
     ${goers(p.code)}
     <div class="foot">
@@ -1113,10 +1112,10 @@ function matches(p){
 function render(){
   if(!["rec","a","b","memo","all"].includes(S.tier))S.tier="rec";
   const nA=DATA.filter(p=>(S.marks[p.code]||{}).a).length,nB=DATA.filter(p=>(S.marks[p.code]||{}).b).length,nMemo=DATA.filter(p=>(S.memos[p.code]||[]).length).length;
-  const tabs=[["rec","注目"],["a","すい"],["b","AT"],["memo","メモ"],["all","全部"]];
-  const DESC={rec:"注目タグに当たる演題。当たった数が多い順（タグの定義は下の「タグの定義」）",a:`すいすいが印を付けた演題（${nA}件）`,b:`ATが印を付けた演題（${nB}件）`,memo:`メモ・リクエストが付いた演題（${nMemo}件）`,all:`全${DATA.length}演題。条件に合わないものはテーマ別にたたんであります`};
+  const tabs=[["rec","タグ"],["a","すい"],["b","AT"],["memo","メモ"],["all","全部"]];
+  const DESC={rec:"キーワードタグに当たる演題。当たった数が多い順（定義は下の「タグの定義」）",a:`すいすいが印を付けた演題（${nA}件）`,b:`ATが印を付けた演題（${nB}件）`,memo:`メモ・リクエストが付いた演題（${nMemo}件）`,all:`全${DATA.length}演題。条件に合わないものはテーマ別にたたんであります`};
   $("ptabdesc").textContent=DESC[S.tier]||"";
-  if(!$("pkwlist").childElementCount)$("pkwlist").innerHTML=TAGS.map(t=>`<li><b>${t.hot?"★":""}${esc(t.label)}</b>：${esc(t.desc)}</li>`).join("");
+  if(!$("pkwlist").childElementCount)$("pkwlist").innerHTML=TAGS.map(t=>`<li><b>${esc(t.label)}</b>：${esc(t.desc)}</li>`).join("");
   $("ppdays").innerHTML=[{k:"",short:"全日"},...PDAYS].map(d=>`<button type="button" class="tab" data-pday="${d.k}" aria-pressed="${(S.day||"")===d.k}" style="--dc:var(--d${d.k||0})">${d.short}</button>`).join("");
   $("ptiers").innerHTML=tabs.map(([k,v])=>`<button type="button" class="tab" data-tier="${k}" aria-pressed="${S.tier===k}">${v}</button>`).join("");
   const ths=["",...TAGS.map(t=>t.label),"その他"];
@@ -1142,7 +1141,7 @@ function render(){
 let openCode=null;
 function sheet(code){
   const p=DATA.find(x=>x.code===code);if(!p)return;openCode=code;
-  const why=[p.f.hits.length&&("注目タグ："+p.f.hits.map(k=>k.label).join("・")),p.tags.filter(t=>!p.f.hits.some(h=>h.label===t)).length&&("その他のタグ："+p.tags.filter(t=>!p.f.hits.some(h=>h.label===t)).join("・"))].filter(Boolean);
+  const why=[p.tags.length&&("タグ："+p.tags.join("・"))].filter(Boolean);
   const ms=S.memos[code]||[];
   const tc={must:"var(--must)",hot:"var(--hot)",oth:"var(--oth)"}[p.tier],tb={must:"var(--must-bg)",hot:"var(--hot-bg)",oth:"var(--oth-bg)"}[p.tier];
   $("psheetin").style.setProperty("--tc",tc);$("psheetin").style.setProperty("--tbg",tb);
