@@ -1,5 +1,6 @@
 <script>/*__BOOT__*/</script>
-<script>document.documentElement.setAttribute('data-theme','light');window.addEventListener('error',function(e){var d=document.createElement('pre');d.id='jserr';d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:999;background:#fee;color:#900;font-size:11px;padding:6px;white-space:pre-wrap;margin:0;max-height:70vh;overflow:auto';var t='JSエラー: '+e.message+' @'+e.lineno+':'+e.colno+'\n';try{var L=e.lineno,C=e.colno;var all=document.documentElement.outerHTML.split('\n');t+='[doc'+all.length+'] '+(all[L-1]||'').slice(Math.max(0,C-120),C+60)+'\n';var ss=document.querySelectorAll('script');for(var i=0;i<ss.length;i++){var ls=ss[i].textContent.split('\n');t+='[s'+i+' n='+ls.length+'] '+(ls.length>=L?(ls[L-1]||'').slice(Math.max(0,C-120),C+60):'')+'\n'}}catch(x){t+=String(x)}d.textContent=t;document.body.appendChild(d)});</script>
+<!-- 注意（本番=Apps Script経由の前処理）: JSの中に「//」をコメント以外で書かない（正規表現 /<\//g など）。「/」の割り算も「*0.5」のように掛け算で書く。誤って正規表現と解釈され、画面が真っ白になる -->
+<script>document.documentElement.setAttribute('data-theme','light');</script>
 <title>JSHG2026 プログラム</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Zen+Maru+Gothic:wght@500;700&family=IBM+Plex+Mono:wght@500&display=swap">
@@ -741,8 +742,8 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
   }
   // ---- saving: the page republishes itself with the state embedded ----
   let editTs=STATE.ts||0;
-  const stateJson=()=>JSON.stringify({plan,labels,ts:editTs}).replace(/<\//g,'<\\/');
-  const buildHtml=()=>'<!doctype html><html><head>'+document.head.innerHTML+'</head><body><script>const SRC='+JSON.stringify(SRC).replace(/<\//g,'<\\/')+'<\/script>'+SRC.replace('__STATE'+'__',stateJson())+'</body></html>';
+  const stateJson=()=>JSON.stringify({plan,labels,ts:editTs}).replace(new RegExp('<\\/','g'),'<\\/');
+  const buildHtml=()=>'<!doctype html><html><head>'+document.head.innerHTML+'</head><body><script>const SRC='+JSON.stringify(SRC).replace(new RegExp('<\\/','g'),'<\\/')+'<\/script>'+SRC.replace('__STATE'+'__',stateJson())+'</body></html>';
   let saveT=null;
   function save(){
     if(!art){status.textContent='保存は作成者のみ（この画面では表示専用）';return}
@@ -941,7 +942,7 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
       [['a','--pa',-5,1.5],['b','--pb',5,-3]].forEach(([k,cv,off,inset])=>{
         if(SHOW[k]<2)return;const items=[];
         cols.forEach(col=>col.querySelectorAll('.slot').forEach(s=>{if(!s.querySelector('.pick.'+k+'[aria-pressed="true"]'))return;
-          const r=s.getBoundingClientRect();const h=mini?s.querySelector('.sess').offsetHeight:r.height; // 詳細表示では印ボタンまで含めて囲む
+          const r=s.getBoundingClientRect();const h=mini?s.querySelector('.sess').offsetHeight:r.height; /* 詳細表示では印ボタンまで含めて囲む */
           items.push({l:r.left-base.left,w:r.width,x:r.left-base.left+(mini?r.width/2+off/2:r.width/2+off),t:r.top-base.top,b:r.top-base.top+h})}));
         if(!items.length)return;
         items.sort((p,q)=>p.t-q.t||p.x-q.x);
