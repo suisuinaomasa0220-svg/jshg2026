@@ -612,6 +612,11 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
 @keyframes jig{0%{transform:none}12%{transform:scale(1.12,.9) rotate(-4deg)}26%{transform:scale(.94,1.08) rotate(4deg)}40%{transform:scale(1.06,.95) rotate(-3deg)}54%{transform:scale(.98,1.03) rotate(2deg)}68%{transform:rotate(-1deg)}82%{transform:rotate(.5deg)}100%{transform:none}}
 .pick.jig,#pv .pick.jig{animation:jig .55s ease-out}
 @media (prefers-reduced-motion:reduce){.pick.jig,#pv .pick.jig{animation:none}}
+#pv .ptchips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:100%}
+#pv .ptchips .chip{box-sizing:border-box;width:100%;height:32px;padding:0 4px;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;justify-content:center;white-space:nowrap;font-size:.78rem;font-weight:700;border:1.5px solid var(--line);border-radius:999px;background:var(--panel);color:var(--fg)}
+#pv .ptchips .chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+#pv .ptchips .chip.clr{grid-column:span 2;background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-size:.84rem}
+@media (min-width:700px){#pv .ptchips{grid-template-columns:repeat(6,minmax(0,1fr))}#pv .ptchips .chip.clr{grid-column:span 3}}
 </style>
 
 <div class="wrap">
@@ -1021,6 +1026,7 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
     <div class="tabs pdays" id="ppdays"></div>
     <div class="tabs" id="ptiers"></div>
     <div class="srow"><input type="search" id="pq" placeholder="検索（演題名・所属・抄録）"><button type="button" class="kwbtn" id="pkwbtn" aria-expanded="false">タグの定義</button><span class="count" id="pcount" hidden></span></div>
+    <div class="ptchips" id="ptchips"></div>
     <p class="tabdesc" id="ptabdesc" hidden></p>
     <details class="kwdef" id="pkwdef"><summary hidden>タグの定義</summary><ul id="pkwlist"></ul></details>
     <div class="frow pthemerow" hidden id="pthemerow"><button type="button" class="fl pthtog" id="pthtog" aria-expanded="false">テーマ ▾</button><div class="chipwrap" id="pchipwrap"><div class="chips" id="pthemes"></div><button type="button" class="sarr l" id="psarrl" aria-label="左へ" tabindex="-1">‹</button><button type="button" class="sarr r" id="psarrr" aria-label="右へ" tabindex="-1">›</button></div></div>
@@ -1124,6 +1130,7 @@ const LS="jshg-poster-mock3";
 let S={marks:{},memos:{},mine:[],skip:{},tier:"rec",theme:"",q:"",day:""};
 try{Object.assign(S,JSON.parse(localStorage.getItem(LS)||"{}"))}catch(e){}
 S.theme="";
+if(!Array.isArray(S.tsel))S.tsel=[];
 if(window.__pvViewer){S.marks={};if(S.tier==="a"||S.tier==="b")S.tier="rec"}
 function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
 
@@ -1163,6 +1170,7 @@ function matches(p){
   if(S.tier==="b"&&!(S.marks[p.code]||{}).b)return false;
   if(S.tier==="memo"&&!(S.memos[p.code]||[]).length)return false;
   if(S.theme&&(S.theme==="その他"?p.theme!=="その他":!p.tags.includes(S.theme)))return false;
+  if(S.tsel.length){const L=TAGS.filter(t=>S.tsel.includes(t.key)).map(t=>t.label);if(!L.some(l=>p.tags.includes(l)))return false}
   const t=S.q.trim().toLowerCase();if(!t)return true;
   const hay=[p.code,p.title,p.ja,p.affil,p.authors,p.abs,p.theme].join(" ").toLowerCase();
   return t.split(/\s+/).every(w=>hay.includes(w));
@@ -1266,6 +1274,12 @@ document.addEventListener("submit",e=>{
   save();render();sheet(openCode);toast("メモを残しました");
 });
 $("pq").value=S.q||"";
+(function(){const box=$("ptchips");
+  const mk=(txt,cls,fn,key)=>{const b=document.createElement("button");b.type="button";b.className="chip"+(cls?" "+cls:"");b.textContent=txt;if(key)b.dataset.tkey=key;b.addEventListener("click",ev=>{ev.stopPropagation();fn();sync();save();render()});box.appendChild(b);return b};
+  mk("全部","clr",()=>{S.tsel=TAGS.map(t=>t.key)});mk("解除","clr",()=>{S.tsel=[]});
+  TAGS.forEach(t=>{const b=mk(t.label,"",()=>{S.tsel=S.tsel.includes(t.key)?S.tsel.filter(x=>x!==t.key):S.tsel.concat(t.key)},t.key);b.title=t.desc});
+  function sync(){box.querySelectorAll("[data-tkey]").forEach(b=>b.setAttribute("aria-pressed",S.tsel.includes(b.dataset.tkey)))}
+  sync()})();
 $("pkwbtn").addEventListener("click",()=>{const d=$("pkwdef");d.open=!d.open;$("pkwbtn").setAttribute("aria-expanded",d.open)});
 $("pq").addEventListener("input",e=>{S.q=e.target.value;save();render()});
 let tt;function toast(s){const el=$("ptoast");el.textContent=s;el.hidden=false;clearTimeout(tt);tt=setTimeout(()=>el.hidden=true,1800)}
