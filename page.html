@@ -1242,7 +1242,10 @@ function draw(){
     M.clusters.forEach((name,k)=>{const its=M.items.filter(it=>it.k===k&&vis(it));if(!its.length)return;
       const xs=its.map(it=>pos(it)[0]).sort((a,b)=>a-b),ys=its.map(it=>pos(it)[1]).sort((a,b)=>a-b);const md=a=>a[Math.floor(a.length*0.5)];
       const dim=(st.hi>=0&&st.hi!==k);const fs=Math.max(10,18*(1/Math.sqrt(z)));
-      h+=`<text class="mlab${dim?' dim':''}" x="${md(xs).toFixed(1)}" y="${(md(ys)-r*2.6).toFixed(1)}" font-size="${fs.toFixed(1)}" style="--c:${COLS[k%COLS.length]}">${esc(name)}</text>`});
+      h+=`<text class="mlab${dim?' dim':''}" x="${md(xs).toFixed(1)}" y="${(md(ys)-r*2.6).toFixed(1)}" font-size="${fs.toFixed(1)}" style="--c:${COLS[k%COLS.length]}">${esc(name)}</text>`});    /* 全体傾向（PCA）の軸の意味：いまの演題での見立て。作り直すと変わるので tools/map で再計算する */
+    if(st.mode==='pc'){const yb=PAD+SPAN+40,xl=PAD-26,T=(x,y,t,rot)=>`<text class="qax" x="${x}" y="${y}" text-anchor="middle"${rot?` transform="rotate(-90 ${x} ${y})"`:''}>${t}</text>`;
+      h+=T(PAD+SPAN*0.25,yb,'← 基礎・創薬')+T(PAD+SPAN*0.75,yb,'臨床・カウンセリング →')
+        +T(xl,PAD+SPAN*0.25,'希少疾患・小児 →',1)+T(xl,PAD+SPAN*0.75,'← がん・GWAS',1);}
   }
   /* 選択中の演題と近い演題を線で結ぶ */
   if(st.sel!=null){const a=M.items[st.sel];const pa=pos(a);
@@ -1274,7 +1277,7 @@ function legend(){
     +TG().map(t=>`<button type="button" class="chip" data-tk="${esc(t.key)}" aria-pressed="${st.tags.includes(t.key)}" title="${esc(t.desc||'')}">${esc(t.label)}</button>`).join('');
   $('mnote').innerHTML=st.mode==='qd'
     ?`横軸は${st.tags.length?'<b>選んだ注目タグ</b>':'<b>注目タグ（全部）</b>'}の当たり数${ROLE?'＋自分の印':''}、縦軸は学会の注目度（そのテーマがプログラムでどれだけ厚く扱われているか。招待講演・シンポジウムは重め）。左上が「学会は推しているのに自分の網に掛かっていない」演題です。`
-    :(st.tags.length?`選んだ注目タグに当たる演題を黒い縁で強調しています。まとまりの横の数は「当たり／全体」。`:`分類はデータから（注目タグは使っていません）。「注目タグ」を押すと、自分の興味がどこにあるかを重ねて見られます。`);
+    :(st.mode==='pc'?`<b>軸の見方（いまの演題での見立て。ポスターの本番データが入ると変わります）</b>：横は左が基礎・創薬、右が臨床・遺伝カウンセリング・倫理。縦は上が希少疾患・小児、下ががん・GWAS・集団遺伝。この2軸で表せるのは全体のばらつきの約14%なので、大まかな傾向として見てください。`:'')+(st.tags.length?`選んだ注目タグに当たる演題を黒い縁で強調しています。まとまりの横の数は「当たり／全体」。`:`分類はデータから（注目タグは使っていません）。「注目タグ」を押すと、自分の興味がどこにあるかを重ねて見られます。`);
 }
 function card(){
   const el=$('mcard');if(st.sel==null){el.hidden=true;return}
