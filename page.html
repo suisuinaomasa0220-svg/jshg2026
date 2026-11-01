@@ -664,7 +664,12 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
   let pendingNewer=false,animKey=null;try{const pd=JSON.parse(localStorage.getItem('jshg2026pending')||'null');if(ROLE&&pd&&pd.ts>(STATE.ts||0)){plan=pd.plan||plan;labels=Object.assign(labels,pd.labels||{});pendingNewer=true}else localStorage.removeItem('jshg2026pending')}catch(e){}
   const la=$('la'),lb=$('lb'),status=$('status');
   DAYS.forEach((d,i)=>{const b=document.createElement('button');b.className='tab';b.textContent=d;b.dataset.s=d.replace(/^\d+\/(\d+)\((.)\)$/,'$1$2');b.setAttribute('aria-pressed',i===0);b.onclick=()=>{day=d;[...tabs.children].forEach(x=>x.setAttribute('aria-pressed',x===b));render()};tabs.appendChild(b)});
-  [['','全部'],['EN','英語'],['JP','日本語']].forEach(([v,t],i)=>{const b=document.createElement('button');b.className='tab';b.textContent=t;b.setAttribute('aria-pressed',i===0);b.onclick=()=>{langSel.value=v;[...$('langs').children].forEach(x=>x.setAttribute('aria-pressed',x===b));render()};$('langs').appendChild(b)});
+  /* 言語：EN・JP を別々にチェック。両方チェック＝全部（既定）。最後の1つは外せない */
+  const syncLang=()=>[...$('langs').children].forEach(x=>x.setAttribute('aria-pressed',!langSel.value||langSel.value===x.dataset.l));
+  ['EN','JP'].forEach(v=>{const b=document.createElement('button');b.className='tab';b.textContent=v;b.dataset.l=v;
+    b.onclick=()=>{const on=!langSel.value||langSel.value===v;const other=v==='EN'?'JP':'EN';
+      if(on){if(langSel.value===v)return;langSel.value=other}else langSel.value='';syncLang();render()};$('langs').appendChild(b)});
+  syncLang();
   const TSEL=new Set();try{(JSON.parse(localStorage.getItem('jshg2026tags')||'[]')).forEach(k=>TSEL.add(k))}catch(e){}
   /* 要旨（abs / abs_ja）がデータに入れば自動的に検索・タグ照合の対象になる */
   const absTxt=i=>(i.abs||'')+' '+(i.abs_ja||i.absja||'');
@@ -879,7 +884,7 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
     if(!v){try{v=JSON.parse(localStorage.getItem('jshg2026view')||'null')}catch(e){}}
     if(!v)return;day=DAYS.includes(v.day)?v.day:DAYS[0];langSel.value=v.lang||'';
     [...tabs.children].forEach(x=>x.setAttribute('aria-pressed',(x.textContent==='全日'?'':x.textContent)===day));
-    [...$('langs').children].forEach((x,i)=>x.setAttribute('aria-pressed',['','EN','JP'][i]===langSel.value));
+    syncLang();
     render();out.querySelectorAll('.scroll').forEach(e=>{if(v.sl&&v.sl[e.dataset.d])e.scrollLeft=v.sl[e.dataset.d]});
     try{history.scrollRestoration='manual'}catch(e){}const y=v.y||0;const t0=Date.now();[0,60,250].forEach(t=>setTimeout(()=>{if(lastTouchAt()>t0)return;window.scrollTo(0,y)},t))}
   const calm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
