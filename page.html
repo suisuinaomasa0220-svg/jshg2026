@@ -1223,10 +1223,10 @@ const B=window.__BOOT__||{},ROLE=B.role||'';
 const COLS=['#3f51b5','#ef6c00','#0097a7','#c2185b','#2e7d32','#6d4c41','#8e24aa','#b58900','#546e7a','#e53935','#1e88e5'];
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const LS='jshg2026map';
-let st={mode:'ts',layers:{t:true,p:true},hi:-1,sel:null,vb:[0,0,1000,1000],tags:[],tagOpen:false,panel:'k',rings:{a:true,b:true},tip:true};
-try{const o=JSON.parse(localStorage.getItem(LS)||'null');if(o){st.mode=o.mode||'ts';st.layers=Object.assign(st.layers,o.layers||{});st.tags=Array.isArray(o.tags)?o.tags:[];if(o.panel==='t')st.panel='t';if(o.rings)st.rings=Object.assign(st.rings,o.rings);if(o.tip===false)st.tip=false}}catch(e){}
+let st={mode:'ts',layers:{t:true,p:true},hi:-1,sel:null,vb:[0,0,1000,1000],tags:[],tagOpen:false,panel:'k',rings:{a:true,b:true},tip:true,labels:true};
+try{const o=JSON.parse(localStorage.getItem(LS)||'null');if(o){st.mode=o.mode||'ts';st.layers=Object.assign(st.layers,o.layers||{});st.tags=Array.isArray(o.tags)?o.tags:[];if(o.panel==='t')st.panel='t';if(o.rings)st.rings=Object.assign(st.rings,o.rings);if(o.tip===false)st.tip=false;if(o.labels===false)st.labels=false}}catch(e){}
 if(st.mode!=='ts'&&st.mode!=='pc')st.mode='ts';
-const save=()=>{try{localStorage.setItem(LS,JSON.stringify({mode:st.mode,layers:st.layers,tags:st.tags,panel:st.panel,rings:st.rings,tip:st.tip}))}catch(e){}};
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify({mode:st.mode,layers:st.layers,tags:st.tags,panel:st.panel,rings:st.rings,tip:st.tip,labels:st.labels}))}catch(e){}};
 const PAD=60,SPAN=1000-2*PAD;
 const TG=()=>(window.TAGS||[]);
 
@@ -1298,7 +1298,7 @@ function draw(){
     const ring=(sa?`<circle class="mr" cx="${p[0]}" cy="${p[1]}" r="${(rr+r*0.75).toFixed(1)}" style="stroke:var(--pa)"/>`:'')+(sb?`<circle class="mr" cx="${p[0]}" cy="${p[1]}" r="${(rr+r*(sa?1.35:0.75)).toFixed(1)}" style="stroke:var(--pb)"/>`:'');
     const shape=`<circle class="pt${it.t==='p'?' p':''}${sel}${th}" cx="${p[0]}" cy="${p[1]}" r="${rr.toFixed(2)}" style="--c:${c}" data-i="${i}"/>`;
     h+=`<g class="pg${dim}">${ring}${shape}</g>`});
-  h+=lab;
+  if(st.labels)h+=lab;
   if(st.mode==='qd'){const xd=PAD+0.29*SPAN,cnt={tr:0,tl:0,br:0,bl:0};M.items.forEach(it=>{if(vis(it))cnt[quad(it)]++});
     const L=(x,y,anc,t,n,cls)=>`<text class="qlab ${cls}" x="${x}" y="${y}" text-anchor="${anc}">${esc(t)}<tspan class="qn"> ${n}件</tspan></text>`;
     h+=L(xd+12,PAD+30,'start',QN.tr,cnt.tr,'tr')+L(PAD+10,PAD+30,'start','盲点',cnt.tl,'tl')+L(xd+12,PAD+SPAN-14,'start','穴場',cnt.br,'br')+L(PAD+10,PAD+SPAN-14,'start','優先度低め',cnt.bl,'bl');
@@ -1312,6 +1312,7 @@ function legend(){
   $('mlegend').innerHTML=M.clusters.map((n,k)=>tot[k]?`<button type="button" class="mchip" data-k="${k}" aria-pressed="${st.hi===k}" style="--c:${COLS[k%COLS.length]}"><i>${k+1}</i>${esc(n)}<small>${tagOn?'当たり '+hit[k]+'/'+tot[k]:tot[k]}</small></button>`:'').join('');
   $('mlayers').innerHTML=[['t','シンポジウム'],['p','ポスター']].map(([k,v])=>`<button type="button" class="tab mly" data-l="${k}" aria-pressed="${st.layers[k]}"><i class="mli${k==='p'?' sm':''}"></i>${v}</button>`).join('')
     +((ROLE==='b'?[['b','AT','--pb'],['a','すいすい','--pa']]:[['a','すいすい','--pa'],['b','AT','--pb']]).map(([k,v,cv])=>`<button type="button" class="tab mly" data-rg="${k}" aria-pressed="${st.rings[k]}"><i class="mri" style="--rc:var(${cv})"></i>${v}</button>`).join(''))
+    +`<button type="button" class="tab mly" data-lbsw="1" aria-pressed="${st.labels}">まとまり番号</button>`
     +(HOVER?`<button type="button" class="tab mly" data-tipsw="1" aria-pressed="${st.tip}">フロート</button>`:'')
   ;
   [...$('mmode').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===st.mode));
@@ -1388,6 +1389,7 @@ document.addEventListener('click',e=>{
   const ch=e.target.closest('.mchip');if(ch){const k=+ch.dataset.k;st.hi=st.hi===k?-1:k;render();return}
   const rg=e.target.closest('[data-rg]');if(rg){const k=rg.dataset.rg;st.rings[k]=!st.rings[k];save();render();return}
   if(e.target.closest('[data-tipsw]')){st.tip=!st.tip;save();render();return}
+  if(e.target.closest('[data-lbsw]')){st.labels=!st.labels;save();render();return}
   const ps=e.target.closest('[data-ps]');if(ps){st.panel=ps.dataset.ps;if(st.panel==='t')st.hi=-1;save();render();return}
   const ta=e.target.closest('[data-ta]');if(ta){st.tags=ta.dataset.ta==='all'?TG().map(t=>t.key):[];save();render();return}
   const tk=e.target.closest('[data-tk]');if(tk){const k=tk.dataset.tk;st.tags=st.tags.includes(k)?st.tags.filter(x=>x!==k):st.tags.concat(k);save();render();return}
