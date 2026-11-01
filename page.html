@@ -959,7 +959,7 @@ body.role-b #pv .foot .memo-n{order:3}
   window.__gsMark=gsMark;
   function flash(m){const el=$('toast');if(!el)return;el.textContent=m;el.hidden=false;clearTimeout(flash.t);flash.t=setTimeout(()=>el.hidden=true,1600)}
   let pulling=false;
-  function pull(){if(pulling)return;pulling=true;google.script.run.withSuccessHandler(s=>{pulling=false;if(!armed&&!openKey){plan=s.t||{};render()}window.__lastState=s;window.__pvApply&&window.__pvApply(s)}).withFailureHandler(()=>{pulling=false}).getState(KEY)}
+  function pull(){if(pulling)return;pulling=true;google.script.run.withSuccessHandler(s=>{pulling=false;if(!armed&&!openKey){plan=s.t||{};render()}window.__lastState=s;window.__pvApply&&window.__pvApply(s);if(document.body.classList.contains('mmode')&&window.__mapShow)window.__mapShow()}).withFailureHandler(()=>{pulling=false}).getState(KEY)}
   window.__pull=pull;
   {const tag=document.createElement('span');tag.className='roletag';tag.textContent=ROLE==='a'?'すいすい用':ROLE==='b'?'AT用':'閲覧用';const h=document.querySelector('#bar h1 .swlink');if(h)h.before(tag)}
   status.textContent=ROLE?'自分の印だけ付けられます':'閲覧用（印は付けられません）';
