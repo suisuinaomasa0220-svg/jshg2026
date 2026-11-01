@@ -1337,6 +1337,8 @@ function zoomAt(f,cx,cy){const p=cx==null?[st.vb[0]+st.vb[2]*0.5,st.vb[1]+st.vb[
 function select(i,center){st.sel=i;if(center&&i!=null){const p=pos(M.items[i]);const w=st.vb[2];st.vb=[p[0]-w*0.5,p[1]-w*0.5,w,w]}draw();card();
   if(i!=null){const el=$('mcard');setTimeout(()=>el.scrollIntoView({block:'nearest',behavior:'smooth'}),30)}}
 $('mzin').onclick=()=>zoomAt(0.6);$('mzout').onclick=()=>zoomAt(1.6);$('mzreset').onclick=()=>{st.vb=[0,0,1000,1000];draw()};
+/* タップ位置にいちばん近い点を選ぶ（点が小さくても指で押せるように、半径lim px以内） */
+function nearest(x,y,lim){let bi=-1,bd=lim*lim;svg.querySelectorAll('.pt').forEach(el=>{const R=el.getBoundingClientRect();const dx=R.left+R.width*0.5-x,dy=R.top+R.height*0.5-y,d=dx*dx+dy*dy;if(d<bd){bd=d;bi=+el.dataset.i}});return bi}
 /* ドラッグ移動・2本指ピンチ・タップ選択 */
 const P=new Map();let drag=null,pinch=null,moved=false;
 svg.addEventListener('pointerdown',e=>{svg.setPointerCapture(e.pointerId);P.set(e.pointerId,[e.clientX,e.clientY]);moved=false;
@@ -1347,7 +1349,7 @@ svg.addEventListener('pointermove',e=>{if(!P.has(e.pointerId))return;P.set(e.poi
   if(drag){const r=svg.getBoundingClientRect();const s=Math.min(r.width,r.height)*(1/st.vb[2]);const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>6)moved=true;
     if(moved){st.vb=[drag.vb[0]-dx*(1/s),drag.vb[1]-dy*(1/s),st.vb[2],st.vb[3]];draw()}}});
 const up=e=>{const was=P.size;P.delete(e.pointerId);if(P.size<2)pinch=null;
-  if(was===1&&!moved){const t=document.elementFromPoint(e.clientX,e.clientY);const pt=t&&t.closest&&t.closest('.pt');if(pt)select(+pt.dataset.i,false);else if(st.sel!=null){select(null)}}
+  if(was===1&&!moved){const i=nearest(e.clientX,e.clientY,e.pointerType==='mouse'?12:26);if(i>=0)select(i,false);else if(st.sel!=null){select(null)}}
   if(P.size===0)drag=null};
 svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',e=>{P.delete(e.pointerId);pinch=null;drag=null});
 /* マウスを点に重ねたら、その点の横に小さなフロート（演題の概要）を出す。フロートに移ってクリックすると詳細へ。スマホはタップで下の詳細カード */
