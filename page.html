@@ -652,7 +652,7 @@ body.mmode>.wrap,body.mmode #bbar,body.mmode .hbar,body.mmode::after{display:non
 #mp .mseg button[aria-pressed=true]{min-height:32px;font-size:.8rem}
 #mp .mlegend{display:flex;gap:5px;flex-wrap:wrap}
 #mp .mchip{display:inline-flex;align-items:center;gap:5px;font:inherit;font-size:.72rem;font-weight:700;border:1.5px solid var(--line);border-radius:999px;background:var(--panel);color:var(--fg);padding:3px 9px;cursor:pointer}
-#mp .mchip i{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none}
+#mp .mchip i{width:18px;height:18px;border-radius:50%;background:var(--c);flex:none;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-style:normal;font-size:.66rem;font-weight:800;line-height:1}
 #mp .mchip small{color:var(--muted);font-weight:700}
 #mp .mchip[aria-pressed=true]{border-color:var(--c);box-shadow:0 0 0 2px color-mix(in srgb,var(--c) 30%,transparent)}
 #mp .mapbox{position:relative;margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:16px;aspect-ratio:1/1;max-height:76vh;width:100%;overflow:hidden;touch-action:none}
@@ -669,6 +669,10 @@ body.mmode>.wrap,body.mmode #bbar,body.mmode .hbar,body.mmode::after{display:non
 #mp .mnb{stroke:#2c2630;stroke-width:calc(1.6px*var(--zs,1));stroke-dasharray:5 5;opacity:.55}
 #mp .mlab{fill:var(--c);font-weight:800;text-anchor:middle;paint-order:stroke;stroke:#fff;stroke-width:calc(4px*var(--zs,1));stroke-linejoin:round;pointer-events:none}
 #mp .mlab.dim{opacity:.12}
+#mp .mnum{pointer-events:none}
+#mp .mnum circle{fill:var(--c);stroke:#fff;stroke-width:calc(2px*var(--zs,1))}
+#mp .mnum text{fill:#fff;font-weight:800;text-anchor:middle}
+#mp .mnum.dim{opacity:.15}
 #mp .mzoom{position:absolute;right:8px;bottom:8px;display:flex;flex-direction:column;gap:6px}
 #mp .mzoom button{width:38px;height:38px;border-radius:50%;border:0;background:var(--accent);color:#fff;font:inherit;font-size:1.1rem;font-weight:800;box-shadow:0 4px 10px -4px rgba(0,0,0,.4);cursor:pointer}
 #mp .mhint{font-size:.72rem;color:var(--muted);margin:8px 2px 10px}
@@ -1245,7 +1249,7 @@ function draw(){
   const svg=$('msvg');if(!svg)return;
   svg.setAttribute('viewBox',st.vb.join(' '));
   const z=1000/st.vb[2];const zs=Math.pow(z,-0.85);svg.style.setProperty('--zs',zs.toFixed(4));const r=9.5*zs;const tagOn=st.tags.length>0&&st.mode!=='qd'&&st.panel==='t';
-  let h='';
+  let h='',lab='';
   if(st.mode==='qd'){
     /* 4区画の背景・名前・件数と軸 */
     const xd=PAD+0.29*SPAN,yd=PAD+0.5*SPAN,cnt={tr:0,tl:0,br:0,bl:0};M.items.forEach(it=>{if(vis(it))cnt[quad(it)]++});
@@ -1260,7 +1264,10 @@ function draw(){
     M.clusters.forEach((name,k)=>{const its=M.items.filter(it=>it.k===k&&vis(it));if(!its.length)return;
       const xs=its.map(it=>pos(it)[0]).sort((a,b)=>a-b),ys=its.map(it=>pos(it)[1]).sort((a,b)=>a-b);const md=a=>a[Math.floor(a.length*0.5)];
       const dim=(st.hi>=0&&st.hi!==k);const fs=18*zs;
-      h+=`<text class="mlab${dim?' dim':''}" x="${md(xs).toFixed(1)}" y="${(md(ys)-r*2.6).toFixed(1)}" font-size="${fs.toFixed(1)}" style="--c:${COLS[k%COLS.length]}">${esc(name)}</text>`});    /* 全体傾向（PCA）の軸の意味：いまの演題での見立て。作り直すと変わるので tools/map で再計算する */
+      /* ふだんは番号の丸だけ。そのまとまりを押して強調したときだけ名前を出す */
+      const lx=md(xs),ly=md(ys)-r*2.6,cc=COLS[k%COLS.length];
+      if(st.hi===k)lab+=`<text class="mlab" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-size="${fs.toFixed(1)}" style="--c:${cc}">${esc(name)}</text>`;
+      else{const br=21*zs;lab+=`<g class="mnum${dim?' dim':''}" style="--c:${cc}"><circle cx="${lx.toFixed(1)}" cy="${(ly-br*1.2).toFixed(1)}" r="${br.toFixed(2)}"/><text x="${lx.toFixed(1)}" y="${(ly-br*1.2).toFixed(1)}" font-size="${(24*zs).toFixed(2)}" dy="0.36em">${k+1}</text></g>`}});    /* 全体傾向（PCA）の軸の意味：いまの演題での見立て。作り直すと変わるので tools/map で再計算する */
     if(st.mode==='pc'){const yb=PAD+SPAN+40,xl=PAD-26,T=(x,y,t,rot)=>`<text class="qax" x="${x}" y="${y}" text-anchor="middle"${rot?` transform="rotate(-90 ${x} ${y})"`:''}>${t}</text>`;
       h+=T(PAD+SPAN*0.25,yb,'← 基礎・創薬')+T(PAD+SPAN*0.75,yb,'臨床・カウンセリング →')
         +T(xl,PAD+SPAN*0.25,'希少疾患・小児 →',1)+T(xl,PAD+SPAN*0.75,'← がん・GWAS',1);}
@@ -1276,6 +1283,7 @@ function draw(){
     const ring=(sa?`<circle class="mr" cx="${p[0]}" cy="${p[1]}" r="${(rr+r*0.75).toFixed(1)}" style="stroke:var(--pa)"/>`:'')+(sb?`<circle class="mr" cx="${p[0]}" cy="${p[1]}" r="${(rr+r*(sa?1.35:0.75)).toFixed(1)}" style="stroke:var(--pb)"/>`:'');
     const shape=`<circle class="pt${it.t==='p'?' p':''}${sel}${th}" cx="${p[0]}" cy="${p[1]}" r="${rr.toFixed(2)}" style="--c:${c}" data-i="${i}"/>`;
     h+=`<g class="pg${dim}">${ring}${shape}</g>`});
+  h+=lab;
   if(st.mode==='qd'){const xd=PAD+0.29*SPAN,cnt={tr:0,tl:0,br:0,bl:0};M.items.forEach(it=>{if(vis(it))cnt[quad(it)]++});
     const L=(x,y,anc,t,n,cls)=>`<text class="qlab ${cls}" x="${x}" y="${y}" text-anchor="${anc}">${esc(t)}<tspan class="qn"> ${n}件</tspan></text>`;
     h+=L(xd+12,PAD+30,'start',QN.tr,cnt.tr,'tr')+L(PAD+10,PAD+30,'start','盲点',cnt.tl,'tl')+L(xd+12,PAD+SPAN-14,'start','穴場',cnt.br,'br')+L(PAD+10,PAD+SPAN-14,'start','優先度低め',cnt.bl,'bl');
@@ -1286,7 +1294,7 @@ function legend(){
   const tagOn=st.tags.length>0;
   const tot=M.clusters.map((_,k)=>M.items.filter(it=>it.k===k&&vis(it)).length);
   const hit=M.clusters.map((_,k)=>M.items.filter(it=>it.k===k&&vis(it)&&hitsOf(it).length>0).length);
-  $('mlegend').innerHTML=M.clusters.map((n,k)=>tot[k]?`<button type="button" class="mchip" data-k="${k}" aria-pressed="${st.hi===k}" style="--c:${COLS[k%COLS.length]}"><i></i>${esc(n)}<small>${tagOn?'当たり '+hit[k]+'/'+tot[k]:tot[k]}</small></button>`:'').join('');
+  $('mlegend').innerHTML=M.clusters.map((n,k)=>tot[k]?`<button type="button" class="mchip" data-k="${k}" aria-pressed="${st.hi===k}" style="--c:${COLS[k%COLS.length]}"><i>${k+1}</i>${esc(n)}<small>${tagOn?'当たり '+hit[k]+'/'+tot[k]:tot[k]}</small></button>`:'').join('');
   $('mlayers').innerHTML=[['t','シンポジウム'],['p','ポスター']].map(([k,v])=>`<button type="button" class="tab mly" data-l="${k}" aria-pressed="${st.layers[k]}"><i class="mli${k==='p'?' sm':''}"></i>${v}</button>`).join('')
     +(ROLE?[['a','すいすい','--pa'],['b','AT','--pb']].map(([k,v,cv])=>`<button type="button" class="tab mly" data-rg="${k}" aria-pressed="${st.rings[k]}"><i class="mri" style="--rc:var(${cv})"></i>${v}</button>`).join(''):'')
     +(HOVER?`<button type="button" class="tab mly" data-tipsw="1" aria-pressed="${st.tip}">フロート</button>`:'')
