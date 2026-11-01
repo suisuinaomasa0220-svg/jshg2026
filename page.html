@@ -1205,7 +1205,6 @@ body.role-b #pv .foot .memo-n{order:3}
   <div class="mcard" id="mcard" hidden></div>
   <div class="mpanel">
     <div class="vseg mseg" id="mpsw"><button type="button" data-ps="k" aria-pressed="true">内容のまとまり</button><button type="button" data-ps="t" aria-pressed="false">注目タグ</button></div>
-    <div class="mpsub" id="mpsub"></div>
     <div class="mlegend" id="mlegend"></div>
     <div class="mtags ptchips" id="mtags" hidden></div>
   </div>
@@ -1223,8 +1222,8 @@ const B=window.__BOOT__||{},ROLE=B.role||'';
 const COLS=['#3f51b5','#ef6c00','#0097a7','#c2185b','#2e7d32','#6d4c41','#8e24aa','#b58900','#546e7a','#e53935','#1e88e5'];
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const LS='jshg2026map';
-let st={mode:'ts',layers:{t:true,p:true},hi:-1,sel:null,vb:[0,0,1000,1000],tags:[],tagOpen:false,panel:'k',rings:{a:true,b:true},tip:true,labels:true};
-try{const o=JSON.parse(localStorage.getItem(LS)||'null');if(o){st.mode=o.mode||'ts';st.layers=Object.assign(st.layers,o.layers||{});st.tags=Array.isArray(o.tags)?o.tags:[];if(o.panel==='t')st.panel='t';if(o.rings)st.rings=Object.assign(st.rings,o.rings);if(o.tip===false)st.tip=false;if(o.labels===false)st.labels=false}}catch(e){}
+let st={mode:'ts',layers:{t:true,p:true},hi:-1,sel:null,vb:[0,0,1000,1000],tags:[],tagOpen:false,panel:'k',rings:{a:true,b:true},tip:true,labels:1};
+try{const o=JSON.parse(localStorage.getItem(LS)||'null');if(o){st.mode=o.mode||'ts';st.layers=Object.assign(st.layers,o.layers||{});st.tags=Array.isArray(o.tags)?o.tags:[];if(o.panel==='t')st.panel='t';if(o.rings)st.rings=Object.assign(st.rings,o.rings);if(o.tip===false)st.tip=false;if(o.labels===false||o.labels===0)st.labels=0;else if(o.labels===2)st.labels=2}}catch(e){}
 if(st.mode!=='ts'&&st.mode!=='pc')st.mode='ts';
 const save=()=>{try{localStorage.setItem(LS,JSON.stringify({mode:st.mode,layers:st.layers,tags:st.tags,panel:st.panel,rings:st.rings,tip:st.tip,labels:st.labels}))}catch(e){}};
 const PAD=60,SPAN=1000-2*PAD;
@@ -1281,8 +1280,8 @@ function draw(){
       const dim=(st.hi>=0&&st.hi!==k);const fs=18*zs;
       /* ふだんは番号の丸だけ。そのまとまりを押して強調したときだけ名前を出す */
       const lx=md(xs),ly=md(ys)-r*2.6,cc=COLS[k%COLS.length];
-      if(st.hi===k)lab+=`<text class="mlab" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-size="${fs.toFixed(1)}" style="--c:${cc}">${esc(name)}</text>`;
-      else{const br=21*zs;lab+=`<g class="mnum${dim?' dim':''}" style="--c:${cc}"><circle cx="${lx.toFixed(1)}" cy="${(ly-br*1.2).toFixed(1)}" r="${br.toFixed(2)}"/><text x="${lx.toFixed(1)}" y="${(ly-br*1.2).toFixed(1)}" font-size="${(24*zs).toFixed(2)}" dy="0.36em">${k+1}</text></g>`}});    /* 全体傾向（PCA）の軸の意味：いまの演題での見立て。作り直すと変わるので tools/map で再計算する */
+      if(st.labels===1&&st.hi===k)lab+=`<text class="mlab" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-size="${fs.toFixed(1)}" style="--c:${cc}">${esc(name)}</text>`;
+      else{const br=21*zs;lab+=`<g class="mnum${dim?' dim':''}" style="--c:${cc}"><circle cx="${lx.toFixed(1)}" cy="${(ly-br*1.2).toFixed(1)}" r="${br.toFixed(2)}"/><text x="${lx.toFixed(1)}" y="${(ly-br*1.2).toFixed(1)}" font-size="${(24*zs).toFixed(2)}" dy="0.36em">${k+1}</text></g>`;if(st.labels===2){const tw=name.length*fs*0.95,right=lx+br*1.35+tw>st.vb[0]+st.vb[2]-6;lab+=`<text class="mlab mside${dim?' dim':''}" x="${(right?lx-br*1.35:lx+br*1.35).toFixed(1)}" y="${(ly-br*1.2).toFixed(1)}" dy="0.36em" font-size="${fs.toFixed(1)}" style="--c:${cc};text-anchor:${right?'end':'start'}">${esc(name)}</text>`}}});    /* 全体傾向（PCA）の軸の意味：いまの演題での見立て。作り直すと変わるので tools/map で再計算する */
     if(st.mode==='pc'){const yb=PAD+SPAN+40,xl=PAD-26,T=(x,y,t,rot)=>`<text class="qax" x="${x}" y="${y}" text-anchor="middle"${rot?` transform="rotate(-90 ${x} ${y})"`:''}>${t}</text>`;
       h+=T(PAD+SPAN*0.25,yb,'← 基礎・創薬')+T(PAD+SPAN*0.75,yb,'臨床・カウンセリング →')
         +T(xl,PAD+SPAN*0.25,'希少疾患・小児 →',1)+T(xl,PAD+SPAN*0.75,'← がん・GWAS',1);}
@@ -1312,13 +1311,12 @@ function legend(){
   $('mlegend').innerHTML=M.clusters.map((n,k)=>tot[k]?`<button type="button" class="mchip" data-k="${k}" aria-pressed="${st.hi===k}" style="--c:${COLS[k%COLS.length]}"><i>${k+1}</i>${esc(n)}<small>${tagOn?'当たり '+hit[k]+'/'+tot[k]:tot[k]}</small></button>`:'').join('');
   $('mlayers').innerHTML=[['t','シンポジウム'],['p','ポスター']].map(([k,v])=>`<button type="button" class="tab mly" data-l="${k}" aria-pressed="${st.layers[k]}"><i class="mli${k==='p'?' sm':''}"></i>${v}</button>`).join('')
     +((ROLE==='b'?[['b','AT','--pb'],['a','すいすい','--pa']]:[['a','すいすい','--pa'],['b','AT','--pb']]).map(([k,v,cv])=>`<button type="button" class="tab mly" data-rg="${k}" aria-pressed="${st.rings[k]}"><i class="mri" style="--rc:var(${cv})"></i>${v}</button>`).join(''))
-    +`<button type="button" class="tab mly" data-lbsw="1" aria-pressed="${st.labels}">まとまり番号</button>`
+    +`<button type="button" class="tab mly" data-lbsw="1" aria-pressed="${st.labels>0}" title="押すたびに なし→番号→番号＋名前">${['番号なし','番号','番号＋名前'][st.labels]}</button>`
     +(HOVER?`<button type="button" class="tab mly" data-tipsw="1" aria-pressed="${st.tip}">フロート</button>`:'')
   ;
   [...$('mmode').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===st.mode));
   const pk=st.panel==='k';$('mlegend').hidden=!pk;const tp=$('mtags');tp.hidden=pk;
   [...$('mpsw').children].forEach(b=>{b.setAttribute('aria-pressed',b.dataset.ps===st.panel);if(b.dataset.ps==='t')b.textContent='注目タグ'+(st.tags.length?'（'+st.tags.length+'）':'')});
-  $('mpsub').textContent=pk?(st.hi>=0?'その色だけ強調中。もう一度押すと解除':'全体から見た分類。押すとその色だけ強調'):'自分の興味。押したタグに当たる演題を黒い縁で強調';
   if(!pk)tp.innerHTML=`<button type="button" class="chip clr" data-ta="all">全部</button><button type="button" class="chip clr" data-ta="none">解除</button>`
     +TG().map(t=>`<button type="button" class="chip" data-tk="${esc(t.key)}" aria-pressed="${st.tags.includes(t.key)}" title="${esc(t.desc||'')}">${esc(t.label)}</button>`).join('');
   $('mnote').innerHTML='';
@@ -1389,7 +1387,7 @@ document.addEventListener('click',e=>{
   const ch=e.target.closest('.mchip');if(ch){const k=+ch.dataset.k;st.hi=st.hi===k?-1:k;render();return}
   const rg=e.target.closest('[data-rg]');if(rg){const k=rg.dataset.rg;st.rings[k]=!st.rings[k];save();render();return}
   if(e.target.closest('[data-tipsw]')){st.tip=!st.tip;save();render();return}
-  if(e.target.closest('[data-lbsw]')){st.labels=!st.labels;save();render();return}
+  if(e.target.closest('[data-lbsw]')){st.labels=(st.labels+1)%3;save();render();return}
   const ps=e.target.closest('[data-ps]');if(ps){st.panel=ps.dataset.ps;if(st.panel==='t')st.hi=-1;save();render();return}
   const ta=e.target.closest('[data-ta]');if(ta){st.tags=ta.dataset.ta==='all'?TG().map(t=>t.key):[];save();render();return}
   const tk=e.target.closest('[data-tk]');if(tk){const k=tk.dataset.tk;st.tags=st.tags.includes(k)?st.tags.filter(x=>x!==k):st.tags.concat(k);save();render();return}
