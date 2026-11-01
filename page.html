@@ -658,7 +658,11 @@ body.mmode>.wrap,body.mmode #bbar,body.mmode .hbar,body.mmode::after{display:non
 #mp .mapbox{position:relative;margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:16px;aspect-ratio:1/1;max-height:76vh;width:100%;overflow:hidden;touch-action:none}
 #mp #msvg{width:100%;height:100%;display:block;user-select:none;-webkit-user-select:none}
 #mp .pt{fill:var(--c);stroke:#fff;stroke-width:calc(1.5px*var(--zs,1));cursor:pointer}
-#mp .pt.p{fill:#fff;stroke:var(--c);stroke-width:calc(3px*var(--zs,1))}
+#mp .pt.p{fill:var(--c);stroke:#fff;stroke-width:calc(1px*var(--zs,1));opacity:.85}
+#mp .mly i{display:inline-block;vertical-align:-1px;margin-right:4px;border-radius:50%}
+#mp .mly .mli{width:9px;height:9px;background:currentColor}
+#mp .mly .mli.sm{width:6px;height:6px;margin:0 5px 1px 2px}
+#mp .mly .mri{width:8px;height:8px;border:2.5px solid var(--rc);background:#fff}
 #mp .pt.sel{stroke:#2c2630;stroke-width:calc(4px*var(--zs,1))}
 #mp .pg.dim{opacity:.13}
 #mp .mr{fill:none;stroke-width:calc(2.5px*var(--zs,1))}
@@ -1199,10 +1203,10 @@ const B=window.__BOOT__||{},ROLE=B.role||'';
 const COLS=['#3f51b5','#ef6c00','#0097a7','#c2185b','#2e7d32','#6d4c41','#8e24aa','#b58900','#546e7a','#e53935','#1e88e5'];
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const LS='jshg2026map';
-let st={mode:'ts',layers:{t:true,p:true},hi:-1,sel:null,vb:[0,0,1000,1000],tags:[],tagOpen:false,panel:'k'};
-try{const o=JSON.parse(localStorage.getItem(LS)||'null');if(o){st.mode=o.mode||'ts';st.layers=Object.assign(st.layers,o.layers||{});st.tags=Array.isArray(o.tags)?o.tags:[];if(o.panel==='t')st.panel='t'}}catch(e){}
+let st={mode:'ts',layers:{t:true,p:true},hi:-1,sel:null,vb:[0,0,1000,1000],tags:[],tagOpen:false,panel:'k',rings:{a:true,b:true},tip:true};
+try{const o=JSON.parse(localStorage.getItem(LS)||'null');if(o){st.mode=o.mode||'ts';st.layers=Object.assign(st.layers,o.layers||{});st.tags=Array.isArray(o.tags)?o.tags:[];if(o.panel==='t')st.panel='t';if(o.rings)st.rings=Object.assign(st.rings,o.rings);if(o.tip===false)st.tip=false}}catch(e){}
 if(st.mode!=='ts'&&st.mode!=='pc')st.mode='ts';
-const save=()=>{try{localStorage.setItem(LS,JSON.stringify({mode:st.mode,layers:st.layers,tags:st.tags,panel:st.panel}))}catch(e){}};
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify({mode:st.mode,layers:st.layers,tags:st.tags,panel:st.panel,rings:st.rings,tip:st.tip}))}catch(e){}};
 const PAD=60,SPAN=1000-2*PAD;
 const TG=()=>(window.TAGS||[]);
 
@@ -1217,6 +1221,7 @@ function tagKeys(it){if(tagCache.has(it.c))return tagCache.get(it.c);let ks=[];
   if(it.t==='t')ks=(window.__ttTagKeys&&window.__ttTagKeys(it.c))||[];
   else{const p=(window.__pvData||[]).find(x=>x.code===it.c);const lab=new Map(TG().map(t=>[t.label,t.key]));ks=p?(p.tags||[]).map(l=>lab.get(l)).filter(Boolean):[]}
   if(TG().length)tagCache.set(it.c,ks);return ks}
+const HOVER=(()=>{try{return matchMedia('(hover:hover) and (pointer:fine)').matches}catch(e){return false}})();
 function marks(it){
   if(!ROLE)return {};
   if(it.t==='t'){const pl=(window.__ttPlan&&window.__ttPlan())||{};return pl[it.c.split('-')[0]]||{}}
@@ -1267,9 +1272,9 @@ function draw(){
   M.items.forEach((it,i)=>{if(!vis(it))return;const p=pos(it);const c=COLS[it.k%COLS.length];
     const hit=tagOn&&hitsOf(it).length>0;
     const dim=((st.hi>=0&&st.hi!==it.k)||(tagOn&&!hit))?' dim':'';const sel=st.sel===i?' sel':'';const th=hit?' thit':'';const m=marks(it);
-    const ring=(m.a?`<circle class="mr" cx="${p[0]}" cy="${p[1]}" r="${(r*1.75).toFixed(1)}" style="stroke:var(--pa)"/>`:'')+(m.b?`<circle class="mr" cx="${p[0]}" cy="${p[1]}" r="${(r*(m.a?2.35:1.75)).toFixed(1)}" style="stroke:var(--pb)"/>`:'');
-    const shape=it.t==='p'?`<rect class="pt p${sel}${th}" x="${(p[0]-r).toFixed(1)}" y="${(p[1]-r).toFixed(1)}" width="${(2*r).toFixed(1)}" height="${(2*r).toFixed(1)}" rx="${(r*0.3).toFixed(1)}" transform="rotate(45 ${p[0]} ${p[1]})" style="--c:${c}" data-i="${i}"/>`
-      :`<circle class="pt${sel}${th}" cx="${p[0]}" cy="${p[1]}" r="${r.toFixed(1)}" style="--c:${c}" data-i="${i}"/>`;
+    const rr=it.t==='p'?r*0.62:r;const sa=m.a&&st.rings.a,sb=m.b&&st.rings.b;
+    const ring=(sa?`<circle class="mr" cx="${p[0]}" cy="${p[1]}" r="${(rr+r*0.75).toFixed(1)}" style="stroke:var(--pa)"/>`:'')+(sb?`<circle class="mr" cx="${p[0]}" cy="${p[1]}" r="${(rr+r*(sa?1.35:0.75)).toFixed(1)}" style="stroke:var(--pb)"/>`:'');
+    const shape=`<circle class="pt${it.t==='p'?' p':''}${sel}${th}" cx="${p[0]}" cy="${p[1]}" r="${rr.toFixed(2)}" style="--c:${c}" data-i="${i}"/>`;
     h+=`<g class="pg${dim}">${ring}${shape}</g>`});
   if(st.mode==='qd'){const xd=PAD+0.29*SPAN,cnt={tr:0,tl:0,br:0,bl:0};M.items.forEach(it=>{if(vis(it))cnt[quad(it)]++});
     const L=(x,y,anc,t,n,cls)=>`<text class="qlab ${cls}" x="${x}" y="${y}" text-anchor="${anc}">${esc(t)}<tspan class="qn"> ${n}件</tspan></text>`;
@@ -1282,7 +1287,9 @@ function legend(){
   const tot=M.clusters.map((_,k)=>M.items.filter(it=>it.k===k&&vis(it)).length);
   const hit=M.clusters.map((_,k)=>M.items.filter(it=>it.k===k&&vis(it)&&hitsOf(it).length>0).length);
   $('mlegend').innerHTML=M.clusters.map((n,k)=>tot[k]?`<button type="button" class="mchip" data-k="${k}" aria-pressed="${st.hi===k}" style="--c:${COLS[k%COLS.length]}"><i></i>${esc(n)}<small>${tagOn?'当たり '+hit[k]+'/'+tot[k]:tot[k]}</small></button>`:'').join('');
-  $('mlayers').innerHTML=[['t','シンポジウム'],['p','ポスター']].map(([k,v])=>`<button type="button" class="tab mly" data-l="${k}" aria-pressed="${st.layers[k]}">${k==='p'?'◆ ':'● '}${v}</button>`).join('')
+  $('mlayers').innerHTML=[['t','シンポジウム'],['p','ポスター']].map(([k,v])=>`<button type="button" class="tab mly" data-l="${k}" aria-pressed="${st.layers[k]}"><i class="mli${k==='p'?' sm':''}"></i>${v}</button>`).join('')
+    +(ROLE?[['a','すいすい','--pa'],['b','AT','--pb']].map(([k,v,cv])=>`<button type="button" class="tab mly" data-rg="${k}" aria-pressed="${st.rings[k]}"><i class="mri" style="--rc:var(${cv})"></i>${v}</button>`).join(''):'')
+    +(HOVER?`<button type="button" class="tab mly" data-tipsw="1" aria-pressed="${st.tip}">フロート</button>`:'')
   ;
   [...$('mmode').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===st.mode));
   const pk=st.panel==='k';$('mlegend').hidden=!pk;const tp=$('mtags');tp.hidden=pk;
@@ -1339,7 +1346,7 @@ svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',e=>{P.
 const tip=document.createElement('div');tip.className='mtip';tip.hidden=true;box.appendChild(tip);let tipI=-1,tipT=0;
 const tipHide=()=>{clearTimeout(tipT);tipT=setTimeout(()=>{tip.hidden=true;tipI=-1},260)};
 svg.addEventListener('pointermove',e=>{if(e.pointerType==='touch')return;
-  const pt=P.size?null:e.target.closest('.pt');if(!pt){if(!tip.hidden)tipHide();return}
+  const pt=(P.size||!st.tip)?null:e.target.closest('.pt');if(!pt){if(!tip.hidden)tipHide();return}
   clearTimeout(tipT);const i=+pt.dataset.i;const it=M.items[i];if(!it||i===tipI)return;
   tipI=i;const f=info(it)||{ja:'',en:it.c,where:'',sess:''};const c=COLS[it.k%COLS.length];
   tip.innerHTML=`<div class="mth"><span class="mcode" style="--c:${c}">${esc(it.c)}</span><span class="mclu" style="--c:${c}">${esc(M.clusters[it.k])}</span></div><div class="mtt">${esc(f.ja||f.en)}</div>${f.where?`<div class="mtw">${esc(f.where)}</div>`:''}<div class="mtk">ここをクリックで詳細 →</div>`;tip.hidden=false;
@@ -1354,6 +1361,8 @@ box.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefau
 document.addEventListener('click',e=>{
   if(!e.target.closest('#mp'))return;
   const ch=e.target.closest('.mchip');if(ch){const k=+ch.dataset.k;st.hi=st.hi===k?-1:k;render();return}
+  const rg=e.target.closest('[data-rg]');if(rg){const k=rg.dataset.rg;st.rings[k]=!st.rings[k];save();render();return}
+  if(e.target.closest('[data-tipsw]')){st.tip=!st.tip;save();render();return}
   const ps=e.target.closest('[data-ps]');if(ps){st.panel=ps.dataset.ps;if(st.panel==='t')st.hi=-1;save();render();return}
   const ta=e.target.closest('[data-ta]');if(ta){st.tags=ta.dataset.ta==='all'?TG().map(t=>t.key):[];save();render();return}
   const tk=e.target.closest('[data-tk]');if(tk){const k=tk.dataset.tk;st.tags=st.tags.includes(k)?st.tags.filter(x=>x!==k):st.tags.concat(k);save();render();return}
