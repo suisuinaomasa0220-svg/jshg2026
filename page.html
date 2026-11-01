@@ -674,6 +674,8 @@ body.mmode>.wrap,body.mmode #bbar,body.mmode .hbar,body.mmode::after{display:non
 #mp .mnum circle{fill:var(--c);stroke:#fff;stroke-width:calc(2px*var(--zs,1))}
 #mp .mnum text{fill:#fff;font-weight:800;text-anchor:middle}
 #mp .mnum.dim{opacity:.15}
+#mp .mlead{stroke:var(--c);stroke-width:calc(1.4px*var(--zs,1));opacity:.7;pointer-events:none}
+#mp .mlead.dim{opacity:.12}
 #mp .mzoom{position:absolute;right:8px;bottom:8px;display:flex;flex-direction:column;gap:6px}
 #mp .mzoom button{width:38px;height:38px;border-radius:50%;border:0;background:var(--accent);color:#fff;font:inherit;font-size:1.1rem;font-weight:800;box-shadow:0 4px 10px -4px rgba(0,0,0,.4);cursor:pointer}
 #mp .mhint{font-size:.72rem;color:var(--muted);margin:8px 2px 10px}
@@ -1275,13 +1277,26 @@ function draw(){
     ['0','1','2','3','4+'].forEach((t,i)=>{h+=`<text class="qtk" x="${PAD+[0.13,0.45,0.64,0.81,0.95][i]*SPAN}" y="${PAD+SPAN+24}" text-anchor="middle">${t}</text>`});
   } else {
     /* まとまりの名前（中央値の位置） */
+    const side=[];
     M.clusters.forEach((name,k)=>{const its=M.items.filter(it=>it.k===k&&vis(it));if(!its.length)return;
       const xs=its.map(it=>pos(it)[0]).sort((a,b)=>a-b),ys=its.map(it=>pos(it)[1]).sort((a,b)=>a-b);const md=a=>a[Math.floor(a.length*0.5)];
       const dim=(st.hi>=0&&st.hi!==k);const fs=18*zs;
       /* ふだんは番号の丸だけ。そのまとまりを押して強調したときだけ名前を出す */
       const lx=md(xs),ly=md(ys)-r*2.6,cc=COLS[k%COLS.length];
       if(st.labels===1&&st.hi===k)lab+=`<text class="mlab" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" font-size="${fs.toFixed(1)}" style="--c:${cc}">${esc(name)}</text>`;
-      else{const br=21*zs;lab+=`<g class="mnum${dim?' dim':''}" style="--c:${cc}"><circle cx="${lx.toFixed(1)}" cy="${(ly-br*1.2).toFixed(1)}" r="${br.toFixed(2)}"/><text x="${lx.toFixed(1)}" y="${(ly-br*1.2).toFixed(1)}" font-size="${(24*zs).toFixed(2)}" dy="0.36em">${k+1}</text></g>`;if(st.labels===2){const tw=name.length*fs*0.95,right=lx+br*1.35+tw>st.vb[0]+st.vb[2]-6;lab+=`<text class="mlab mside${dim?' dim':''}" x="${(right?lx-br*1.35:lx+br*1.35).toFixed(1)}" y="${(ly-br*1.2).toFixed(1)}" dy="0.36em" font-size="${fs.toFixed(1)}" style="--c:${cc};text-anchor:${right?'end':'start'}">${esc(name)}</text>`}}});    /* 全体傾向（PCA）の軸の意味：いまの演題での見立て。作り直すと変わるので tools/map で再計算する */
+      else{const br=21*zs;lab+=`<g class="mnum${dim?' dim':''}" style="--c:${cc}"><circle cx="${lx.toFixed(1)}" cy="${(ly-br*1.2).toFixed(1)}" r="${br.toFixed(2)}"/><text x="${lx.toFixed(1)}" y="${(ly-br*1.2).toFixed(1)}" font-size="${(24*zs).toFixed(2)}" dy="0.36em">${k+1}</text></g>`;if(st.labels===2)side.push({lx,cy:ly-br*1.2,br,name,cc,dim,fs})}});
+    /* 番号＋名前：名前どうしが重ならないように置き場所を探す（右→左、だめなら上下にずらして細い線でつなぐ） */
+    if(side.length){const cv=document.createElement('canvas').getContext('2d');const ff=getComputedStyle(svg).fontFamily;
+      const L=st.vb[0]+4,RR=st.vb[0]+st.vb[2]-4,TT=st.vb[1]+4,BB=st.vb[1]+st.vb[3]-4,placed=[];
+      {const zr=document.querySelector('#mp .mzoom'),sr=svg.getBoundingClientRect();if(zr&&sr.width){const zb=zr.getBoundingClientRect(),k=st.vb[2]*(1/Math.min(sr.width,sr.height)),ox=sr.left+(sr.width-Math.min(sr.width,sr.height))*0.5,oy=sr.top+(sr.height-Math.min(sr.width,sr.height))*0.5;placed.push({x0:st.vb[0]+(zb.left-ox)*k,x1:st.vb[0]+(zb.right-ox)*k,y0:st.vb[1]+(zb.top-oy)*k,y1:st.vb[1]+(zb.bottom-oy)*k})}}
+      const hit=q=>placed.some(o=>q.x0<o.x1&&q.x1>o.x0&&q.y0<o.y1&&q.y1>o.y0);
+      side.sort((p1,p2)=>p1.cy-p2.cy).forEach(t=>{cv.font='800 '+t.fs+'px '+ff;const w=cv.measureText(t.name).width+t.fs*0.4,hh=t.fs*1.3,gap=t.br*1.35;let best=null;
+        for(const dy of [0,-1,1,-2,2,-3,3,-4,4,-5,5]){for(const sd of [1,-1]){const x0=sd>0?t.lx+gap:t.lx-gap-w,cy=t.cy+dy*hh,q={x0,x1:x0+w,y0:cy-hh*0.5,y1:cy+hh*0.5};
+          if(q.x0<L||q.x1>RR||q.y0<TT||q.y1>BB||hit(q))continue;best={q,sd,cy,dy};break}if(best)break}
+        if(!best){const x0=t.lx+gap;best={q:{x0,x1:x0+w,y0:t.cy-hh*0.5,y1:t.cy+hh*0.5},sd:1,cy:t.cy,dy:0}}
+        placed.push(best.q);const tx=best.sd>0?best.q.x0+t.fs*0.2:best.q.x1-t.fs*0.2;
+        if(best.dy)lab+=`<line class="mlead${t.dim?' dim':''}" x1="${(t.lx+best.sd*t.br).toFixed(1)}" y1="${t.cy.toFixed(1)}" x2="${tx.toFixed(1)}" y2="${best.cy.toFixed(1)}" style="--c:${t.cc}"/>`;
+        lab+=`<text class="mlab mside${t.dim?' dim':''}" x="${tx.toFixed(1)}" y="${best.cy.toFixed(1)}" dy="0.36em" font-size="${t.fs.toFixed(1)}" style="--c:${t.cc};text-anchor:${best.sd>0?'start':'end'}">${esc(t.name)}</text>`})}    /* 全体傾向（PCA）の軸の意味：いまの演題での見立て。作り直すと変わるので tools/map で再計算する */
     if(st.mode==='pc'){const yb=PAD+SPAN+40,xl=PAD-26,T=(x,y,t,rot)=>`<text class="qax" x="${x}" y="${y}" text-anchor="middle"${rot?` transform="rotate(-90 ${x} ${y})"`:''}>${t}</text>`;
       h+=T(PAD+SPAN*0.25,yb,'← 基礎・創薬')+T(PAD+SPAN*0.75,yb,'臨床・カウンセリング →')
         +T(xl,PAD+SPAN*0.25,'希少疾患・小児 →',1)+T(xl,PAD+SPAN*0.75,'← がん・GWAS',1);}
