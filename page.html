@@ -707,12 +707,13 @@ body.mmode>.wrap,body.mmode #bbar,body.mmode .hbar,body.mmode::after{display:non
 #mp .mnote{font-size:.72rem;color:var(--muted);margin:0;line-height:1.45}
 #mp .mnote b{color:var(--accent)}
 #mp .mnote:empty{display:none}
-#mp .mtip{position:absolute;z-index:5;max-width:min(280px,70%);background:#fff;border:1.5px solid var(--line);border-radius:12px;box-shadow:0 8px 22px -8px rgba(60,20,40,.35);padding:8px 10px;pointer-events:none;font-size:.78rem;line-height:1.4}
+#mp .mtip{position:absolute;z-index:5;max-width:min(280px,70%);background:#fff;border:1.5px solid var(--line);border-radius:12px;box-shadow:0 8px 22px -8px rgba(60,20,40,.35);padding:8px 10px;cursor:pointer;font-size:.78rem;line-height:1.4}
 #mp .mtip[hidden]{display:none}
 #mp .mtip .mth{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:3px}
 #mp .mtip .mtt{font-weight:800;color:var(--fg)}
 #mp .mtip .mtw{color:var(--muted);font-size:.72rem;margin-top:2px}
 #mp .mtip .mtk{color:var(--accent);font-size:.68rem;font-weight:700;margin-top:3px}
+#mp .mtip:hover{border-color:var(--accent)}
 #mp .pt.thit{stroke:#2c2630;stroke-width:calc(3.5px*var(--zs,1))}
 #mp .qline{stroke:#b85c7a;stroke-width:2;stroke-dasharray:8 6;opacity:.6}
 #mp .qlab{font-size:32px;font-weight:800;fill:#72243e;paint-order:stroke;stroke:#fff;stroke-width:5px}
@@ -1334,18 +1335,21 @@ const up=e=>{const was=P.size;P.delete(e.pointerId);if(P.size<2)pinch=null;
   if(was===1&&!moved){const t=document.elementFromPoint(e.clientX,e.clientY);const pt=t&&t.closest&&t.closest('.pt');if(pt)select(+pt.dataset.i,false);else if(st.sel!=null){select(null)}}
   if(P.size===0)drag=null};
 svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',e=>{P.delete(e.pointerId);pinch=null;drag=null});
-/* マウスを点に重ねたら、その近くに小さなフロート（演題の概要）を出す。スマホはタップで下の詳細カード */
-const tip=document.createElement('div');tip.className='mtip';tip.hidden=true;box.appendChild(tip);let tipI=-1;
+/* マウスを点に重ねたら、その点の横に小さなフロート（演題の概要）を出す。フロートに移ってクリックすると詳細へ。スマホはタップで下の詳細カード */
+const tip=document.createElement('div');tip.className='mtip';tip.hidden=true;box.appendChild(tip);let tipI=-1,tipT=0;
+const tipHide=()=>{clearTimeout(tipT);tipT=setTimeout(()=>{tip.hidden=true;tipI=-1},260)};
 svg.addEventListener('pointermove',e=>{if(e.pointerType==='touch')return;
-  const pt=P.size?null:e.target.closest('.pt');if(!pt){if(!tip.hidden){tip.hidden=true;tipI=-1}return}
-  const i=+pt.dataset.i;const it=M.items[i];if(!it)return;
-  if(i!==tipI){tipI=i;const f=info(it)||{ja:'',en:it.c,where:'',sess:''};const c=COLS[it.k%COLS.length];
-    tip.innerHTML=`<div class="mth"><span class="mcode" style="--c:${c}">${esc(it.c)}</span><span class="mclu" style="--c:${c}">${esc(M.clusters[it.k])}</span></div><div class="mtt">${esc(f.ja||f.en)}</div>${f.where?`<div class="mtw">${esc(f.where)}</div>`:''}<div class="mtk">クリックで詳細</div>`;tip.hidden=false}
-  const R=box.getBoundingClientRect();let x=e.clientX-R.left+14,y=e.clientY-R.top+14;
-  const w=tip.offsetWidth,h=tip.offsetHeight;if(x+w>R.width-6)x=e.clientX-R.left-w-14;if(y+h>R.height-6)y=e.clientY-R.top-h-14;
-  tip.style.left=Math.max(6,x)+'px';tip.style.top=Math.max(6,y)+'px'});
-svg.addEventListener('pointerleave',()=>{tip.hidden=true;tipI=-1});
-svg.addEventListener('pointerdown',()=>{tip.hidden=true;tipI=-1});
+  const pt=P.size?null:e.target.closest('.pt');if(!pt){if(!tip.hidden)tipHide();return}
+  clearTimeout(tipT);const i=+pt.dataset.i;const it=M.items[i];if(!it||i===tipI)return;
+  tipI=i;const f=info(it)||{ja:'',en:it.c,where:'',sess:''};const c=COLS[it.k%COLS.length];
+  tip.innerHTML=`<div class="mth"><span class="mcode" style="--c:${c}">${esc(it.c)}</span><span class="mclu" style="--c:${c}">${esc(M.clusters[it.k])}</span></div><div class="mtt">${esc(f.ja||f.en)}</div>${f.where?`<div class="mtw">${esc(f.where)}</div>`:''}<div class="mtk">ここをクリックで詳細 →</div>`;tip.hidden=false;
+  const R=box.getBoundingClientRect(),B=pt.getBoundingClientRect();const cx=B.left+B.width*0.5-R.left,cy=B.top+B.height*0.5-R.top,g=B.width*0.5+4;
+  const w=tip.offsetWidth,h=tip.offsetHeight;let x=cx+g,y=cy-h*0.5;if(x+w>R.width-6)x=cx-g-w;
+  tip.style.left=Math.max(6,x)+'px';tip.style.top=Math.max(6,Math.min(R.height-h-6,y))+'px'});
+svg.addEventListener('pointerleave',tipHide);
+tip.addEventListener('pointerenter',()=>clearTimeout(tipT));tip.addEventListener('pointerleave',tipHide);
+tip.addEventListener('click',()=>{const i=tipI;tip.hidden=true;tipI=-1;if(i>=0)select(i)});
+svg.addEventListener('pointerdown',()=>{clearTimeout(tipT);tip.hidden=true;tipI=-1});
 box.addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();zoomAt(e.deltaY>0?1.15:0.87,e.clientX,e.clientY)},{passive:false});
 document.addEventListener('click',e=>{
   if(!e.target.closest('#mp'))return;
