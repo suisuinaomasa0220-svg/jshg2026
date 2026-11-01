@@ -748,6 +748,11 @@ body.mmode>.wrap,body.mmode #bbar,body.mmode .hbar,body.mmode::after{display:non
 body.role-b .who2 .pick.a,body.role-b #pv .foot .pick.a,body.role-b .rtog .a{order:2}
 body.role-b .rtog .b{order:1}
 body.role-b #pv .foot .memo-n{order:3}
+
+/* ==== 内容のまとまり：同じ幅のボタンを格子状にそろえる（スマホ1列、広い画面は2〜3列）。件数は右端 ==== */
+#mp .mlegend{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px}
+#mp .mlegend .mchip{width:100%;box-sizing:border-box;justify-content:flex-start;padding:5px 12px 5px 6px;min-height:34px;text-align:left}
+#mp .mlegend .mchip small{margin-left:auto;padding-left:8px;white-space:nowrap}
 </style>
 
 <div class="wrap">
