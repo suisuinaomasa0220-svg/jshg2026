@@ -742,6 +742,11 @@ body.mmode>.wrap,body.mmode #bbar,body.mmode .hbar,body.mmode::after{display:non
 #mp .mseg{background:var(--accent-soft);border-radius:999px;padding:3px;gap:2px!important;box-sizing:border-box}
 #mp .mseg button,#mp .mseg button[aria-pressed=true]{border:0!important;background:transparent;color:var(--accent);font-weight:800;min-height:34px!important;font-size:.8rem!important;border-radius:999px;box-shadow:none;transition:background .18s,color .18s,box-shadow .18s}
 #mp .mseg button[aria-pressed=true]{background:var(--accent);color:#fff;box-shadow:0 2px 6px -2px rgba(80,30,50,.45)}
+
+/* AT用リンクでは自分（AT）を左、すいすいを右に：時間割のコマ・画面下の表示切替・ポスターのカード */
+body.role-b .who2 .pick.a,body.role-b #pv .foot .pick.a,body.role-b .rtog .a{order:2}
+body.role-b .rtog .b{order:1}
+body.role-b #pv .foot .memo-n{order:3}
 </style>
 
 <div class="wrap">
@@ -1301,7 +1306,7 @@ function legend(){
   const hit=M.clusters.map((_,k)=>M.items.filter(it=>it.k===k&&vis(it)&&hitsOf(it).length>0).length);
   $('mlegend').innerHTML=M.clusters.map((n,k)=>tot[k]?`<button type="button" class="mchip" data-k="${k}" aria-pressed="${st.hi===k}" style="--c:${COLS[k%COLS.length]}"><i>${k+1}</i>${esc(n)}<small>${tagOn?'当たり '+hit[k]+'/'+tot[k]:tot[k]}</small></button>`:'').join('');
   $('mlayers').innerHTML=[['t','シンポジウム'],['p','ポスター']].map(([k,v])=>`<button type="button" class="tab mly" data-l="${k}" aria-pressed="${st.layers[k]}"><i class="mli${k==='p'?' sm':''}"></i>${v}</button>`).join('')
-    +(ROLE?[['a','すいすい','--pa'],['b','AT','--pb']].map(([k,v,cv])=>`<button type="button" class="tab mly" data-rg="${k}" aria-pressed="${st.rings[k]}"><i class="mri" style="--rc:var(${cv})"></i>${v}</button>`).join(''):'')
+    +(ROLE?(ROLE==='b'?[['b','AT','--pb'],['a','すいすい','--pa']]:[['a','すいすい','--pa'],['b','AT','--pb']]).map(([k,v,cv])=>`<button type="button" class="tab mly" data-rg="${k}" aria-pressed="${st.rings[k]}"><i class="mri" style="--rc:var(${cv})"></i>${v}</button>`).join(''):'')
     +(HOVER?`<button type="button" class="tab mly" data-tipsw="1" aria-pressed="${st.tip}">フロート</button>`:'')
   ;
   [...$('mmode').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===st.mode));
@@ -1535,7 +1540,7 @@ function matches(p){
   return t.split(/\s+/).every(w=>hay.includes(w));
 }
 function render(){
-  const tabs=window.__pvViewer?[["m","メモあり"],["t","注目タグ"]]:[["a","すいすいの印"],["b","ATの印"],["m","メモあり"],["t","注目タグ"]];
+  const tabs=window.__pvViewer?[["m","メモあり"],["t","注目タグ"]]:(PV_ME==="b"?[["b","ATの印"],["a","すいすいの印"]]:[["a","すいすいの印"],["b","ATの印"]]).concat([["m","メモあり"],["t","注目タグ"]]);
   if(!$("pkwlist").childElementCount)$("pkwlist").innerHTML=TAGS.map(t=>`<li><b>${esc(t.label)}</b>：${esc(t.desc)}</li>`).join("");
   $("ppdays").innerHTML=[{k:"",short:"全日"},...PDAYS].map(d=>`<button type="button" class="tab" data-pday="${d.k}" aria-pressed="${(S.day||"")===d.k}" style="--dc:var(--d${d.k||0})">${d.short}</button>`).join("");
   const on={a:S.fA,b:S.fB,m:S.fMemo,t:S.tsel.length>0};
