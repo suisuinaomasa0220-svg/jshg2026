@@ -1161,7 +1161,7 @@ body.mmode>.wrap,body.mmode #bbar,body.mmode .hbar,body.mmode::after{display:non
   <div class="mockbanner">いまは演題名だけで配置しています（抄録公開後に作り直し）。ポスターの点は架空のサンプルです。</div>
   <div class="bar">
     <h1 class="hd"><img class="y" src="https://raw.githubusercontent.com/suisuinaomasa0220-svg/jshg2026/main/icon-192.png" alt="JSHG" width="36" height="36"><nav class="swlink vnav" aria-label="画面の切替"><a data-v="tt" href="#jikanwari">時間割</a><a data-v="pv" href="#poster">ポスター</a><a data-v="mp" href="#map" aria-current="page">地図</a></nav></h1>
-    <div class="vseg mseg" id="mmode"><button type="button" data-m="ts" aria-pressed="true">似ている順</button><button type="button" data-m="pc" aria-pressed="false">全体傾向</button><button type="button" data-m="qd" aria-pressed="false">興味×注目度</button></div>
+    <div class="vseg mseg" id="mmode"><button type="button" data-m="ts" aria-pressed="true">似ている順</button><button type="button" data-m="pc" aria-pressed="false">全体傾向</button></div>
     <div class="mrow"><div class="tabs" id="mlayers"></div></div>
     <div class="mtags ptchips" id="mtags" hidden></div>
     <p class="mnote" id="mnote"></p>
@@ -1180,7 +1180,7 @@ body.mmode>.wrap,body.mmode #bbar,body.mmode .hbar,body.mmode::after{display:non
 (function(){
 /* ===== 地図タブ：演題を内容の近さで2次元に並べた図。点をタップ→詳細と近い演題→時間割/ポスターへ ===== */
 /* 注意：このブロックではスラッシュ2つの並びと正規表現リテラルを使わない（本番の前処理で壊れるため） */
-/* 表示は3種類：似ている順（t-SNE）／全体傾向（PCA）／興味×注目度（横＝自分の注目タグの当たり＋自分の印、縦＝学会の注目度） */
+/* 表示は2種類：似ている順（t-SNE）／全体傾向（PCA）。興味×注目度の区画表示は 2026-11-01 に削除（描画コードは残置、ボタンなし） */
 const $=id=>document.getElementById(id);
 let M=null;try{M=JSON.parse($('mapdata').textContent)}catch(e){return}
 const B=window.__BOOT__||{},ROLE=B.role||'';
@@ -1189,6 +1189,7 @@ const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;',
 const LS='jshg2026map';
 let st={mode:'ts',layers:{t:true,p:true},hi:-1,sel:null,vb:[0,0,1000,1000],tags:[],tagOpen:false};
 try{const o=JSON.parse(localStorage.getItem(LS)||'null');if(o){st.mode=o.mode||'ts';st.layers=Object.assign(st.layers,o.layers||{});st.tags=Array.isArray(o.tags)?o.tags:[]}}catch(e){}
+if(st.mode!=='ts'&&st.mode!=='pc')st.mode='ts';
 const save=()=>{try{localStorage.setItem(LS,JSON.stringify({mode:st.mode,layers:st.layers,tags:st.tags}))}catch(e){}};
 const PAD=60,SPAN=1000-2*PAD;
 const TG=()=>(window.TAGS||[]);
@@ -1293,7 +1294,6 @@ function card(){
     <div class="mwhere">${esc(f.where)}${f.sess?'　<span>'+esc(f.sess)+'</span>':''}</div>
     <div class="mrowk"><span class="mk">トピック</span><span class="mtps">${tp}</span></div>
     <div class="mrowk"><span class="mk">注目タグ</span><span class="mtps">${tags}</span></div>
-    <div class="mrowk"><span class="mk">区画</span><span class="mq ${q}">${esc(QN[q])}</span><span class="mqs">学会の注目度 ${Math.round(it.att*100)}／100</span></div>
     ${go}
     <div class="msec">内容が近い演題</div><ul class="mnbl">${nb}</ul>`;
   el.hidden=false;
