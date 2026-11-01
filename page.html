@@ -618,11 +618,18 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
 #pv .ptchips .chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
 #pv .ptchips .chip.clr{grid-column:span 2;background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-size:.84rem}
 @media (min-width:700px){#pv .ptchips{grid-template-columns:repeat(6,minmax(0,1fr))}#pv .ptchips .chip.clr{grid-column:span 3}}
-#pv.hide-other[data-me="a"] .foot .pick.b,#pv.hide-other[data-me="b"] .foot .pick.a,#pv.hide-me[data-me="a"] .foot .pick.a,#pv.hide-me[data-me="b"] .foot .pick.b{display:none}
 #pv[data-me="b"] .foot .pick.b{order:-1}
 #pv #ptiers .tab.ptog{border-style:dashed}
 #pv #ptiers .tab.ptog[aria-pressed=true]{border-style:solid}
 #pv .ptchips[hidden]{display:none}
+#pv .pstatus{display:flex;align-items:center;gap:8px;margin:12px 0 2px;font-size:.84rem;min-height:30px}
+#pv .pstatus .pst-all{color:var(--muted);font-weight:700}
+#pv .pstatus .pst-on{flex:1;min-width:0;color:var(--fg)}
+#pv .pstatus .pst-on b{color:var(--accent)}
+#pv .pstatus .pst-clr{flex:none;font:inherit;font-size:.8rem;font-weight:800;color:#fff;background:var(--accent);border:0;border-radius:999px;padding:6px 12px;cursor:pointer}
+#pv #ptiers .tab.pf{border-style:solid;font-size:.74rem;letter-spacing:-.03em;padding:0 2px;white-space:nowrap;overflow:hidden}
+#pv #ptiers{gap:4px}
+
 </style>
 
 <div class="wrap">
@@ -1043,6 +1050,7 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
     <div class="frow pthemerow" hidden id="pthemerow"><button type="button" class="fl pthtog" id="pthtog" aria-expanded="false">テーマ ▾</button><div class="chipwrap" id="pchipwrap"><div class="chips" id="pthemes"></div><button type="button" class="sarr l" id="psarrl" aria-label="左へ" tabindex="-1">‹</button><button type="button" class="sarr r" id="psarrr" aria-label="右へ" tabindex="-1">›</button></div></div>
   </div>
 
+  <div class="pstatus" id="pstatus"></div>
   <div id="pout"></div>
 </div>
 
@@ -1146,8 +1154,10 @@ if(window.__pvViewer){S.marks={}}
 if(S.tier==="a"||S.tier==="b"||S.tier==="rec")S.tier="all";
 if(typeof S.tagOpen!=="boolean")S.tagOpen=false;
 const PV_ME=(window.__BOOT__||{}).role||"",PV_OTHER=PV_ME==="a"?"b":PV_ME==="b"?"a":"";
-if(typeof S.showOther!=="boolean")S.showOther=false;
-if(typeof S.showMe!=="boolean")S.showMe=true;
+/* 上のタブはすべて「押したら絞り込む」。何も押していなければ全部表示 */
+if(typeof S.fA!=="boolean")S.fA=false;if(typeof S.fB!=="boolean")S.fB=false;
+if(typeof S.fMemo!=="boolean")S.fMemo=(S.tier==="memo");
+S.tier="all";if(window.__pvViewer){S.fA=false;S.fB=false}
 function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
 
 /* ---------- render ---------- */
@@ -1181,8 +1191,9 @@ function card(p){
 }
 function matches(p){
   if(S.day&&p.day!==S.day)return false;
-  if(S.tier==="rec"&&p.tier==="oth")return false;
-  if(S.tier==="memo"&&!(S.memos[p.code]||[]).length)return false;
+  if(S.fA&&!(S.marks[p.code]||{}).a)return false;
+  if(S.fB&&!(S.marks[p.code]||{}).b)return false;
+  if(S.fMemo&&!(S.memos[p.code]||[]).length)return false;
   if(S.theme&&(S.theme==="その他"?p.theme!=="その他":!p.tags.includes(S.theme)))return false;
   if(S.tsel.length){const L=TAGS.filter(t=>S.tsel.includes(t.key)).map(t=>t.label);if(!L.some(l=>p.tags.includes(l)))return false}
   const t=S.q.trim().toLowerCase();if(!t)return true;
@@ -1190,22 +1201,23 @@ function matches(p){
   return t.split(/\s+/).every(w=>hay.includes(w));
 }
 function render(){
-  if(!["memo","all"].includes(S.tier))S.tier="all";
-  const nA=DATA.filter(p=>(S.marks[p.code]||{}).a).length,nB=DATA.filter(p=>(S.marks[p.code]||{}).b).length,nMemo=DATA.filter(p=>(S.memos[p.code]||[]).length).length;
-  const tabs=window.__pvViewer?[["memo","メモ"],["tag","注目タグ"]]:[["memo","メモ"],["tag","注目タグ"],["a","すいすい"],["b","AT"]];
-  const DESC={rec:"キーワードタグに当たる演題。当たった数が多い順（定義は下の「タグの定義」）",a:`すいすいが印を付けた演題（${nA}件）`,b:`ATが印を付けた演題（${nB}件）`,memo:`メモ・リクエストが付いた演題（${nMemo}件）`,all:`全${DATA.length}演題。条件に合わないものはテーマ別にたたんであります`};
-  $("ptabdesc").textContent=DESC[S.tier]||"";
+  const tabs=window.__pvViewer?[["m","メモあり"],["t","注目タグ"]]:[["a","すいすいの印"],["b","ATの印"],["m","メモあり"],["t","注目タグ"]];
   if(!$("pkwlist").childElementCount)$("pkwlist").innerHTML=TAGS.map(t=>`<li><b>${esc(t.label)}</b>：${esc(t.desc)}</li>`).join("");
   $("ppdays").innerHTML=[{k:"",short:"全日"},...PDAYS].map(d=>`<button type="button" class="tab" data-pday="${d.k}" aria-pressed="${(S.day||"")===d.k}" style="--dc:var(--d${d.k||0})">${d.short}</button>`).join("");
-  $("ptiers").innerHTML=tabs.map(([k,v])=>k==="memo"?`<button type="button" class="tab ptog" data-pmemo="1" aria-pressed="${S.tier==="memo"}">メモ</button>`:k==="tag"?`<button type="button" class="tab ptog" data-ptag="1" aria-pressed="${S.tagOpen}">注目タグ${S.tsel.length&&!S.tagOpen?"("+S.tsel.length+")":""}</button>`:(k==="a"||k==="b")?`<button type="button" class="tab ptog${k===PV_ME?" me":""}" data-ptog="${k}" aria-pressed="${k===PV_ME?S.showMe:S.showOther}">${v}</button>`:`<button type="button" class="tab" data-tier="${k}" aria-pressed="${S.tier===k}">${v}</button>`).join("");
-  $("pv").classList.toggle("hide-other",!S.showOther);$("pv").classList.toggle("hide-me",!S.showMe);$("ptchips").hidden=!S.tagOpen;$("pv").dataset.me=PV_ME;
+  const on={a:S.fA,b:S.fB,m:S.fMemo,t:S.tsel.length>0};
+  $("ptiers").innerHTML=tabs.map(([k,v])=>`<button type="button" class="tab pf" data-pf="${k}" aria-pressed="${on[k]}">${k==="t"?v+(S.tsel.length?"("+S.tsel.length+")":"")+(S.tagOpen?" ▴":" ▾"):v}</button>`).join("");
+  $("ptchips").hidden=!S.tagOpen;$("pv").dataset.me=PV_ME;
   const ths=["",...TAGS.map(t=>t.label),"その他"];
   $("pthemes").innerHTML=ths.map(t=>{const c=DATA.filter(p=>t==="その他"?p.theme==="その他":p.tags.includes(t)).length;if(t&&!c)return"";return `<button type="button" class="chip" data-theme="${esc(t)}" aria-pressed="${S.theme===t}">${t?esc(t)+" "+c:"全テーマ"}</button>`}).join("");
   const rows=DATA.filter(matches);
   $("pcount").textContent=rows.length+" / "+DATA.length+" 件";
-  if(!rows.length){$("pout").innerHTML='<p class="empty">条件に合う演題はありません。検索語かテーマを外してください。</p>';return}
+  /* 今の状態を1行で：全部なのか、何で絞っているのか */
+  const conds=[];if(S.day)conds.push(PDAYS[S.day-1].short);if(S.fA)conds.push("すいすいの印");if(S.fB)conds.push("ATの印");if(S.fMemo)conds.push("メモあり");
+  if(S.tsel.length)conds.push(TAGS.filter(t=>S.tsel.includes(t.key)).map(t=>t.label).join("/"));if(S.q.trim())conds.push("「"+S.q.trim()+"」");
+  $("pstatus").innerHTML=conds.length?`<span class="pst-on"><b>${esc(conds.join("・"))}</b> で絞り込み中　${rows.length}件</span><button type="button" class="pst-clr" id="pclear">× 解除</button>`:`<span class="pst-all">全${DATA.length}件を表示中</span>`;
+  if(!rows.length){$("pout").innerHTML='<p class="empty">条件に合う演題はありません。「× 解除」で全部に戻せます。</p>';return}
   const oth=DATA.filter(p=>p.tier==="oth").length;
-  const flat=S.tier==="a"||S.tier==="b"||S.tier==="memo"||S.q.trim()||S.theme;
+  const flat=S.fA||S.fB||S.fMemo||S.tsel.length>0||S.q.trim()||S.theme;
   let html=["hot","oth"].map(k=>{const rs=rows.filter(p=>p.tier===k);if(!rs.length)return"";
     const head=`<h2>${TIERS[k].name}<small>${rs.length}件</small></h2><p class="why">${TIERS[k].why}</p>`;
     if(k==="oth"&&!flat){
@@ -1214,7 +1226,7 @@ function render(){
     }
     return `<section class="tier ${k}">${head}<div class="list">${rs.map(card).join("")}</div></section>`}).join("");
   if(S.tier==="rec"&&oth)html+=`<button type="button" class="more" data-tier="all">残り ${oth} 件をテーマ別に見る</button>`;
-  if(S.tier==="memo")html=`<div class="copybar"><button type="button" class="copybtn" id="copymemo">メモ付き演題をテキストでコピー</button><textarea id="pcopyout" readonly hidden aria-label="コピー用テキスト"></textarea></div>`+html;
+  if(S.fMemo)html=`<div class="copybar"><button type="button" class="copybtn" id="copymemo">メモ付き演題をテキストでコピー</button><textarea id="pcopyout" readonly hidden aria-label="コピー用テキスト"></textarea></div>`+html;
   $("pout").innerHTML=html;
 }
 
@@ -1253,10 +1265,8 @@ document.addEventListener("click",e=>{
   const t=e.target.closest("button");if(!t||!t.closest("#pv"))return;
   if(t.dataset.pday!==undefined){S.day=t.dataset.pday;save();render();return}
   if(t.dataset.tier){S.tier=t.dataset.tier;save();render();return}
-  if(t.dataset.pmemo){S.tier=S.tier==="memo"?"all":"memo";save();render();return}
-  if(t.dataset.ptag){S.tagOpen=!S.tagOpen;save();render();return}
-  if(t.dataset.ptog){if(t.dataset.ptog===PV_OTHER)S.showOther=!S.showOther;else if(t.dataset.ptog===PV_ME)S.showMe=!S.showMe;save();render();return}
-  if(t.dataset.theme!==undefined){S.theme=S.theme===t.dataset.theme?"":t.dataset.theme;save();render();return}
+  if(t.dataset.pf){const k=t.dataset.pf;if(k==="a")S.fA=!S.fA;else if(k==="b")S.fB=!S.fB;else if(k==="m")S.fMemo=!S.fMemo;else if(k==="t")S.tagOpen=!S.tagOpen;save();render();return}
+  if(t.id==="pclear"){S.day="";S.fA=false;S.fB=false;S.fMemo=false;S.tsel=[];S.q="";$("pq").value="";$("ptchips").querySelectorAll("[data-tkey]").forEach(b=>b.setAttribute("aria-pressed","false"));save();render();return}
   if(t.dataset.open){sheet(t.dataset.open);return}
   if(t.dataset.pick){
     if(Math.abs(e.clientY-downY)>8)return;
