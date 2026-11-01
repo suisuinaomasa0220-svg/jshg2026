@@ -45,3 +45,17 @@ json.dump(out,open('mapdata.json','w'),ensure_ascii=False,separators=(',',':'))
 print('mapdata.json',len(out['items']),'items', round(len(json.dumps(out,ensure_ascii=False))/1024,1),'KB')
 print('example neighbors of S16-1:',[items[j]['code'] for j in nb[[i['code'] for i in items].index('S16-1')]])
 print('example neighbors of S2-2:',[items[j]['code'] for j in nb[[i['code'] for i in items].index('S2-2')]])
+
+# ---- 学会の注目度（データから）：トピックごとに「どれだけの量と格で扱われているか」を足し上げ、演題はそのトピックの平均
+KW={'招待講演':3.0,'教育講演':3.0,'シンポジウム':2.0,'教育セッション':1.5,'一般口演':1.0,'ポスター':0.5}
+kinds={x['code']:x['kind'] for x in tt}
+wt=np.array([KW.get(kinds.get(it['code'],'ポスター'),1.0) for it in items])
+emph=(X*wt[:,None]).sum(0)                       # トピックごとの扱いの厚さ
+att=np.array([emph[X[i]>0].mean() if X[i].sum() else 0 for i in range(len(items))])
+rank=att.argsort().argsort()/(len(att)-1)        # 0〜1の順位にそろえる
+top=sorted([(V[j],round(float(emph[j]),1)) for j in range(len(V))],key=lambda t:-t[1])
+print('emphasis top:',top[:8]); print('emphasis bottom:',top[-6:])
+for i,it in enumerate(out['items']): it['att']=round(float(rank[i]),3)
+out['emph']={V[j]:round(float(emph[j]),2) for j in range(len(V))}
+json.dump(out,open('mapdata.json','w'),ensure_ascii=False,separators=(',',':'))
+print('att added; e.g.', [(items[i]['code'],out['items'][i]['att']) for i in [0,10,50,100,140]])
