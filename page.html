@@ -1192,12 +1192,12 @@ function matches(p){
 function render(){
   if(!["memo","all"].includes(S.tier))S.tier="all";
   const nA=DATA.filter(p=>(S.marks[p.code]||{}).a).length,nB=DATA.filter(p=>(S.marks[p.code]||{}).b).length,nMemo=DATA.filter(p=>(S.memos[p.code]||[]).length).length;
-  const tabs=window.__pvViewer?[["all","全部"],["memo","メモ"],["tag","注目タグ"]]:[["all","全部"],["memo","メモ"],["tag","注目タグ"],["a","すいすい"],["b","AT"]];
+  const tabs=window.__pvViewer?[["memo","メモ"],["tag","注目タグ"]]:[["memo","メモ"],["tag","注目タグ"],["a","すいすい"],["b","AT"]];
   const DESC={rec:"キーワードタグに当たる演題。当たった数が多い順（定義は下の「タグの定義」）",a:`すいすいが印を付けた演題（${nA}件）`,b:`ATが印を付けた演題（${nB}件）`,memo:`メモ・リクエストが付いた演題（${nMemo}件）`,all:`全${DATA.length}演題。条件に合わないものはテーマ別にたたんであります`};
   $("ptabdesc").textContent=DESC[S.tier]||"";
   if(!$("pkwlist").childElementCount)$("pkwlist").innerHTML=TAGS.map(t=>`<li><b>${esc(t.label)}</b>：${esc(t.desc)}</li>`).join("");
   $("ppdays").innerHTML=[{k:"",short:"全日"},...PDAYS].map(d=>`<button type="button" class="tab" data-pday="${d.k}" aria-pressed="${(S.day||"")===d.k}" style="--dc:var(--d${d.k||0})">${d.short}</button>`).join("");
-  $("ptiers").innerHTML=tabs.map(([k,v])=>k==="tag"?`<button type="button" class="tab ptog" data-ptag="1" aria-pressed="${S.tagOpen}">注目タグ${S.tsel.length&&!S.tagOpen?"("+S.tsel.length+")":""}</button>`:(k==="a"||k==="b")?`<button type="button" class="tab ptog${k===PV_ME?" me":""}" data-ptog="${k}" aria-pressed="${k===PV_ME||S.showOther}">${v}</button>`:`<button type="button" class="tab" data-tier="${k}" aria-pressed="${S.tier===k}">${v}</button>`).join("");
+  $("ptiers").innerHTML=tabs.map(([k,v])=>k==="memo"?`<button type="button" class="tab ptog" data-pmemo="1" aria-pressed="${S.tier==="memo"}">メモ</button>`:k==="tag"?`<button type="button" class="tab ptog" data-ptag="1" aria-pressed="${S.tagOpen}">注目タグ${S.tsel.length&&!S.tagOpen?"("+S.tsel.length+")":""}</button>`:(k==="a"||k==="b")?`<button type="button" class="tab ptog${k===PV_ME?" me":""}" data-ptog="${k}" aria-pressed="${k===PV_ME||S.showOther}">${v}</button>`:`<button type="button" class="tab" data-tier="${k}" aria-pressed="${S.tier===k}">${v}</button>`).join("");
   $("pv").classList.toggle("hide-other",!S.showOther);$("ptchips").hidden=!S.tagOpen;$("pv").dataset.me=PV_ME;
   const ths=["",...TAGS.map(t=>t.label),"その他"];
   $("pthemes").innerHTML=ths.map(t=>{const c=DATA.filter(p=>t==="その他"?p.theme==="その他":p.tags.includes(t)).length;if(t&&!c)return"";return `<button type="button" class="chip" data-theme="${esc(t)}" aria-pressed="${S.theme===t}">${t?esc(t)+" "+c:"全テーマ"}</button>`}).join("");
@@ -1253,6 +1253,7 @@ document.addEventListener("click",e=>{
   const t=e.target.closest("button");if(!t||!t.closest("#pv"))return;
   if(t.dataset.pday!==undefined){S.day=t.dataset.pday;save();render();return}
   if(t.dataset.tier){S.tier=t.dataset.tier;save();render();return}
+  if(t.dataset.pmemo){S.tier=S.tier==="memo"?"all":"memo";save();render();return}
   if(t.dataset.ptag){S.tagOpen=!S.tagOpen;save();render();return}
   if(t.dataset.ptog){if(t.dataset.ptog===PV_OTHER){S.showOther=!S.showOther;save();render()}else toast("自分の印ボタンは常に表示しています");return}
   if(t.dataset.theme!==undefined){S.theme=S.theme===t.dataset.theme?"":t.dataset.theme;save();render();return}
