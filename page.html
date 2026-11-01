@@ -704,6 +704,7 @@ body.mmode>.wrap,body.mmode #bbar,body.mmode .hbar,body.mmode::after{display:non
 #mp .mtags .chip.clr{grid-column:span 2;background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
 #mp .mnote{font-size:.72rem;color:var(--muted);margin:0;line-height:1.45}
 #mp .mnote b{color:var(--accent)}
+#mp .mnote:empty{display:none}
 #mp .pt.thit{stroke:#2c2630;stroke-width:3.5}
 #mp .qline{stroke:#b85c7a;stroke-width:2;stroke-dasharray:8 6;opacity:.6}
 #mp .qlab{font-size:32px;font-weight:800;fill:#72243e;paint-order:stroke;stroke:#fff;stroke-width:5px}
@@ -724,7 +725,7 @@ body.mmode>.wrap,body.mmode #bbar,body.mmode .hbar,body.mmode::after{display:non
 <div class="wrap">
   
 
-  <div class="bar" id="bar"><h1 style="display:flex;align-items:center;gap:6px;margin:0"><img class="y" src="https://raw.githubusercontent.com/suisuinaomasa0220-svg/jshg2026/main/icon-192.png" alt="JSHG" width="36" height="36"><nav class="swlink vnav" aria-label="画面の切替"><a data-v="tt" href="#jikanwari" aria-current="page">時間割</a><a data-v="pv" href="#poster">ポスター</a><a data-v="mp" href="#map">地図</a></nav></h1>
+  <div class="bar" id="bar"><h1 style="display:flex;align-items:center;gap:6px;margin:0"><img class="y" src="https://raw.githubusercontent.com/suisuinaomasa0220-svg/jshg2026/main/icon-192.png" alt="JSHG" width="36" height="36"><nav class="swlink vnav" aria-label="画面の切替"><a data-v="tt" href="#jikanwari" aria-current="page">シンポジウム</a><a data-v="pv" href="#poster">ポスター</a><a data-v="mp" href="#map">分析</a></nav></h1>
     <div class="drow"><div class="tabs" id="tabs"></div><div class="vseg" id="minib" role="group" aria-label="表示の大きさ"><button type="button" data-m="0" aria-pressed="true">詳細</button><button type="button" data-m="1" aria-pressed="false">全体</button></div><button type="button" class="btog" id="btog" aria-expanded="true"><span class="bsum" id="bsum"></span><span class="chev" id="chev">絞込 ▲</span></button></div>
     <div class="bbody" id="bbody">
     <div class="srow"><input type="search" id="q" placeholder="検索（スペース区切りでAND）"><div class="tabs" id="langs"></div><span class="count" id="count" hidden></span></div>
@@ -1138,7 +1139,7 @@ body.mmode>.wrap,body.mmode #bbar,body.mmode .hbar,body.mmode::after{display:non
   <div class="mockbanner">ポスター一覧は公開前のため、今は架空のサンプルです。公開されたら差し替えます。</div>
 
   <div class="bar">
-    <h1 class="hd"><img class="y" src="https://raw.githubusercontent.com/suisuinaomasa0220-svg/jshg2026/main/icon-192.png" alt="JSHG" width="36" height="36"><nav class="swlink vnav" aria-label="画面の切替"><a data-v="tt" href="#jikanwari">時間割</a><a data-v="pv" href="#poster" aria-current="page">ポスター</a><a data-v="mp" href="#map">地図</a></nav></h1>
+    <h1 class="hd"><img class="y" src="https://raw.githubusercontent.com/suisuinaomasa0220-svg/jshg2026/main/icon-192.png" alt="JSHG" width="36" height="36"><nav class="swlink vnav" aria-label="画面の切替"><a data-v="tt" href="#jikanwari">シンポジウム</a><a data-v="pv" href="#poster" aria-current="page">ポスター</a><a data-v="mp" href="#map">分析</a></nav></h1>
     <div class="tabs pdays" id="ppdays"></div>
     <div class="tabs" id="ptiers"></div>
     <div class="srow"><input type="search" id="pq" placeholder="検索（演題名・所属・抄録）"><button type="button" class="kwbtn" id="pkwbtn" aria-expanded="false">タグの定義</button><span class="count" id="pcount" hidden></span></div>
@@ -1160,7 +1161,7 @@ body.mmode>.wrap,body.mmode #bbar,body.mmode .hbar,body.mmode::after{display:non
 <div class="wrap">
   <div class="mockbanner">いまは演題名だけで配置しています（抄録公開後に作り直し）。ポスターの点は架空のサンプルです。</div>
   <div class="bar">
-    <h1 class="hd"><img class="y" src="https://raw.githubusercontent.com/suisuinaomasa0220-svg/jshg2026/main/icon-192.png" alt="JSHG" width="36" height="36"><nav class="swlink vnav" aria-label="画面の切替"><a data-v="tt" href="#jikanwari">時間割</a><a data-v="pv" href="#poster">ポスター</a><a data-v="mp" href="#map" aria-current="page">地図</a></nav></h1>
+    <h1 class="hd"><img class="y" src="https://raw.githubusercontent.com/suisuinaomasa0220-svg/jshg2026/main/icon-192.png" alt="JSHG" width="36" height="36"><nav class="swlink vnav" aria-label="画面の切替"><a data-v="tt" href="#jikanwari">シンポジウム</a><a data-v="pv" href="#poster">ポスター</a><a data-v="mp" href="#map" aria-current="page">分析</a></nav></h1>
     <div class="vseg mseg" id="mmode"><button type="button" data-m="ts" aria-pressed="true">似ている順</button><button type="button" data-m="pc" aria-pressed="false">全体傾向</button></div>
     <div class="mrow"><div class="tabs" id="mlayers"></div></div>
     <div class="mtags ptchips" id="mtags" hidden></div>
@@ -1270,15 +1271,13 @@ function legend(){
   const tot=M.clusters.map((_,k)=>M.items.filter(it=>it.k===k&&vis(it)).length);
   const hit=M.clusters.map((_,k)=>M.items.filter(it=>it.k===k&&vis(it)&&hitsOf(it).length>0).length);
   $('mlegend').innerHTML=M.clusters.map((n,k)=>tot[k]?`<button type="button" class="mchip" data-k="${k}" aria-pressed="${st.hi===k}" style="--c:${COLS[k%COLS.length]}"><i></i>${esc(n)}<small>${tagOn?'当たり '+hit[k]+'/'+tot[k]:tot[k]}</small></button>`:'').join('');
-  $('mlayers').innerHTML=[['t','時間割'],['p','ポスター']].map(([k,v])=>`<button type="button" class="tab mly" data-l="${k}" aria-pressed="${st.layers[k]}">${k==='p'?'◆ ':'● '}${v}</button>`).join('')
+  $('mlayers').innerHTML=[['t','シンポジウム'],['p','ポスター']].map(([k,v])=>`<button type="button" class="tab mly" data-l="${k}" aria-pressed="${st.layers[k]}">${k==='p'?'◆ ':'● '}${v}</button>`).join('')
     +`<button type="button" class="tab mly mtagbtn" data-tg="1" aria-pressed="${st.tags.length>0}">注目タグ${st.tags.length?'('+st.tags.length+')':''}${st.tagOpen?' ▴':' ▾'}</button>`;
   [...$('mmode').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===st.mode));
   const tp=$('mtags');tp.hidden=!st.tagOpen;
   if(st.tagOpen)tp.innerHTML=`<button type="button" class="chip clr" data-ta="all">全部</button><button type="button" class="chip clr" data-ta="none">解除</button>`
     +TG().map(t=>`<button type="button" class="chip" data-tk="${esc(t.key)}" aria-pressed="${st.tags.includes(t.key)}" title="${esc(t.desc||'')}">${esc(t.label)}</button>`).join('');
-  $('mnote').innerHTML=st.mode==='qd'
-    ?`横軸は${st.tags.length?'<b>選んだ注目タグ</b>':'<b>注目タグ（全部）</b>'}の当たり数${ROLE?'＋自分の印':''}、縦軸は学会の注目度（そのテーマがプログラムでどれだけ厚く扱われているか。招待講演・シンポジウムは重め）。左上が「学会は推しているのに自分の網に掛かっていない」演題です。`
-    :(st.mode==='pc'?`<b>軸の見方（いまの演題での見立て。ポスターの本番データが入ると変わります）</b>：横は左が基礎・創薬、右が臨床・遺伝カウンセリング・倫理。縦は上が希少疾患・小児、下ががん・GWAS・集団遺伝。この2軸で表せるのは全体のばらつきの約14%なので、大まかな傾向として見てください。`:'')+(st.tags.length?`選んだ注目タグに当たる演題を黒い縁で強調しています。まとまりの横の数は「当たり／全体」。`:`分類はデータから（注目タグは使っていません）。「注目タグ」を押すと、自分の興味がどこにあるかを重ねて見られます。`);
+  $('mnote').innerHTML=st.tags.length?'':`分類はデータから（注目タグは使っていません）。「注目タグ」を押すと、自分の興味がどこにあるかを重ねて見られます。`;
 }
 function card(){
   const el=$('mcard');if(st.sel==null){el.hidden=true;return}
@@ -1288,7 +1287,7 @@ function card(){
   const tags=hk.length?hk.map(k=>`<span class="mtg${activeTags().includes(k)?' on':''}">${esc(lab.get(k)||k)}</span>`).join(''):'<span class="mtgn">なし</span>';
   const q=quad(it);
   const nb=it.nb.map(j=>{const b=M.items[j];const g=info(b)||{};return `<li><button type="button" class="mnbi" data-i="${j}"><span class="mcode" style="--c:${COLS[b.k%COLS.length]}">${esc(b.c)}</span><span class="mnbt">${esc(g.ja||g.en||'')}</span></button></li>`}).join('');
-  const go=it.t==='t'?`<button type="button" class="mgo" data-go="t">時間割で開く →</button>`:`<button type="button" class="mgo" data-go="p">ポスターで開く →</button>`;
+  const go=it.t==='t'?`<button type="button" class="mgo" data-go="t">シンポジウムで開く →</button>`:`<button type="button" class="mgo" data-go="p">ポスターで開く →</button>`;
   el.innerHTML=`<div class="mch"><span class="mcode" style="--c:${c}">${esc(it.c)}</span><span class="mclu" style="--c:${c}">${esc(M.clusters[it.k])}</span><button type="button" class="mx" aria-label="閉じる">×</button></div>
     <div class="mja">${esc(f.ja||f.en)}</div>${f.ja&&f.en?`<div class="men">${esc(f.en)}</div>`:''}
     <div class="mwhere">${esc(f.where)}${f.sess?'　<span>'+esc(f.sess)+'</span>':''}</div>
