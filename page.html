@@ -372,7 +372,9 @@ h1 .roletag+.swlink{margin-left:6px!important}
 #pv .flag.corp{background:var(--chip);color:var(--muted)}
 #pv .flag.kw,#pv .flag.gwas{background:var(--gwas-bg);color:var(--gwas)}
 #pv .flag.okada{background:var(--okada-bg);color:var(--okada)}
-#pv .foot{display:grid;grid-template-columns:1fr 1fr auto;gap:5px;align-items:center}
+#pv .foot{display:flex;gap:5px;align-items:center}
+#pv .foot .pick{flex:1 1 0;min-width:0}
+#pv .foot .memo-n{flex:none;margin-left:auto}
 #pv .skip{font:inherit;font-size:.74rem;font-weight:700;border:0;background:none;color:var(--muted);cursor:pointer;padding:5px 4px;white-space:nowrap}
 #pv .grp{background:var(--panel);border-radius:14px;margin-bottom:6px}
 #pv .grp summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;padding:9px 12px;font-weight:700;font-size:.88rem}
@@ -597,7 +599,6 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
 .tagsec{margin:0}
 .tagsec #chips{margin-top:0}
 .role-view .who2,.role-view .rtog,.role-view #pv .pick,.role-view .route-svg{display:none!important}
-.role-view #pv .foot{grid-template-columns:1fr auto}
 /* ポスターのヘッダーを時間割と同じ見た目に */
 #pv .bar{gap:8px}
 #pv .pdays,#pv #ptiers{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px;align-items:center}
@@ -617,12 +618,10 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
 #pv .ptchips .chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
 #pv .ptchips .chip.clr{grid-column:span 2;background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-size:.84rem}
 @media (min-width:700px){#pv .ptchips{grid-template-columns:repeat(6,minmax(0,1fr))}#pv .ptchips .chip.clr{grid-column:span 3}}
-#pv.hide-other[data-me="a"] .foot .pick.b,#pv.hide-other[data-me="b"] .foot .pick.a{display:none}
-#pv.hide-other[data-me="a"] .foot,#pv.hide-other[data-me="b"] .foot{grid-template-columns:1fr auto}
+#pv.hide-other[data-me="a"] .foot .pick.b,#pv.hide-other[data-me="b"] .foot .pick.a,#pv.hide-me[data-me="a"] .foot .pick.a,#pv.hide-me[data-me="b"] .foot .pick.b{display:none}
 #pv[data-me="b"] .foot .pick.b{order:-1}
 #pv #ptiers .tab.ptog{border-style:dashed}
 #pv #ptiers .tab.ptog[aria-pressed=true]{border-style:solid}
-#pv #ptiers .tab.ptog.me{cursor:default}
 #pv .ptchips[hidden]{display:none}
 </style>
 
@@ -1148,6 +1147,7 @@ if(S.tier==="a"||S.tier==="b"||S.tier==="rec")S.tier="all";
 if(typeof S.tagOpen!=="boolean")S.tagOpen=false;
 const PV_ME=(window.__BOOT__||{}).role||"",PV_OTHER=PV_ME==="a"?"b":PV_ME==="b"?"a":"";
 if(typeof S.showOther!=="boolean")S.showOther=false;
+if(typeof S.showMe!=="boolean")S.showMe=true;
 function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
 
 /* ---------- render ---------- */
@@ -1197,8 +1197,8 @@ function render(){
   $("ptabdesc").textContent=DESC[S.tier]||"";
   if(!$("pkwlist").childElementCount)$("pkwlist").innerHTML=TAGS.map(t=>`<li><b>${esc(t.label)}</b>：${esc(t.desc)}</li>`).join("");
   $("ppdays").innerHTML=[{k:"",short:"全日"},...PDAYS].map(d=>`<button type="button" class="tab" data-pday="${d.k}" aria-pressed="${(S.day||"")===d.k}" style="--dc:var(--d${d.k||0})">${d.short}</button>`).join("");
-  $("ptiers").innerHTML=tabs.map(([k,v])=>k==="memo"?`<button type="button" class="tab ptog" data-pmemo="1" aria-pressed="${S.tier==="memo"}">メモ</button>`:k==="tag"?`<button type="button" class="tab ptog" data-ptag="1" aria-pressed="${S.tagOpen}">注目タグ${S.tsel.length&&!S.tagOpen?"("+S.tsel.length+")":""}</button>`:(k==="a"||k==="b")?`<button type="button" class="tab ptog${k===PV_ME?" me":""}" data-ptog="${k}" aria-pressed="${k===PV_ME||S.showOther}">${v}</button>`:`<button type="button" class="tab" data-tier="${k}" aria-pressed="${S.tier===k}">${v}</button>`).join("");
-  $("pv").classList.toggle("hide-other",!S.showOther);$("ptchips").hidden=!S.tagOpen;$("pv").dataset.me=PV_ME;
+  $("ptiers").innerHTML=tabs.map(([k,v])=>k==="memo"?`<button type="button" class="tab ptog" data-pmemo="1" aria-pressed="${S.tier==="memo"}">メモ</button>`:k==="tag"?`<button type="button" class="tab ptog" data-ptag="1" aria-pressed="${S.tagOpen}">注目タグ${S.tsel.length&&!S.tagOpen?"("+S.tsel.length+")":""}</button>`:(k==="a"||k==="b")?`<button type="button" class="tab ptog${k===PV_ME?" me":""}" data-ptog="${k}" aria-pressed="${k===PV_ME?S.showMe:S.showOther}">${v}</button>`:`<button type="button" class="tab" data-tier="${k}" aria-pressed="${S.tier===k}">${v}</button>`).join("");
+  $("pv").classList.toggle("hide-other",!S.showOther);$("pv").classList.toggle("hide-me",!S.showMe);$("ptchips").hidden=!S.tagOpen;$("pv").dataset.me=PV_ME;
   const ths=["",...TAGS.map(t=>t.label),"その他"];
   $("pthemes").innerHTML=ths.map(t=>{const c=DATA.filter(p=>t==="その他"?p.theme==="その他":p.tags.includes(t)).length;if(t&&!c)return"";return `<button type="button" class="chip" data-theme="${esc(t)}" aria-pressed="${S.theme===t}">${t?esc(t)+" "+c:"全テーマ"}</button>`}).join("");
   const rows=DATA.filter(matches);
@@ -1255,7 +1255,7 @@ document.addEventListener("click",e=>{
   if(t.dataset.tier){S.tier=t.dataset.tier;save();render();return}
   if(t.dataset.pmemo){S.tier=S.tier==="memo"?"all":"memo";save();render();return}
   if(t.dataset.ptag){S.tagOpen=!S.tagOpen;save();render();return}
-  if(t.dataset.ptog){if(t.dataset.ptog===PV_OTHER){S.showOther=!S.showOther;save();render()}else toast("自分の印ボタンは常に表示しています");return}
+  if(t.dataset.ptog){if(t.dataset.ptog===PV_OTHER)S.showOther=!S.showOther;else if(t.dataset.ptog===PV_ME)S.showMe=!S.showMe;save();render();return}
   if(t.dataset.theme!==undefined){S.theme=S.theme===t.dataset.theme?"":t.dataset.theme;save();render();return}
   if(t.dataset.open){sheet(t.dataset.open);return}
   if(t.dataset.pick){
