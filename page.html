@@ -488,7 +488,7 @@ body.pmode #bbar{display:none}
   .slot{animation:none!important}
   .scroll{scrollbar-width:none;cursor:grab}
   .scroll.dragging{cursor:grabbing;user-select:none}
-  #minib{display:none}
+  /* PCでも「詳細／全体」ボタンを表示（Ctrl＋ホイールでも切替可） */
   body:not(.mini) .tt{min-width:calc(var(--nr,4)*var(--cw,180px) + 24px)}
   .wrap{max-width:none}
   .zoomtip{position:fixed;right:16px;bottom:calc(var(--bbar-h,70px) + 24px);z-index:26;background:var(--fg);color:var(--bg);font-size:.78rem;border-radius:999px;padding:5px 12px;opacity:0;transition:opacity .25s;pointer-events:none}
