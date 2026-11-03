@@ -755,6 +755,26 @@ body.role-b #pv .foot .memo-n{order:3}
 #mp .mlegend{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px}
 #mp .mlegend .mchip{width:100%;box-sizing:border-box;justify-content:flex-start;padding:5px 12px 5px 6px;min-height:34px;text-align:left}
 #mp .mlegend .mchip small{margin-left:auto;padding-left:8px;white-space:nowrap}
+/* ===== PC：縦の画面を時間割に回す（見出しを2段に圧縮） ===== */
+@media (hover:hover) and (pointer:fine){
+  #bar{flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 8px;padding-block:6px}
+  #bar>h1{display:contents}
+  #bar>h1 .y{order:0;width:32px;height:32px}
+  #bar>.drow{order:1;flex:1 1 0;min-width:0;min-height:0}
+  #bar>h1 .vnav{order:2;margin:0}
+  #bar>.bbody{order:3;flex:1 1 100%;display:flex;flex-direction:row;gap:8px;align-items:center;min-width:0}
+  #bar .drow #tabs,#bar .drow .vseg{height:36px}
+  #bar .drow #tabs .tab,#bar .drow .vseg button,#bar .drow .btog,
+  #bar .drow #tabs .tab[aria-pressed=true],#bar .drow .vseg button[aria-pressed=true],#bar .drow .btog[aria-expanded=true]{min-height:34px;height:34px;font-size:.85rem}
+  #bar .drow .btog[aria-expanded=false]{min-height:30px;height:30px}
+  #bar .srow{flex:0 1 380px;min-width:220px}
+  #bar .srow input[type=search]{height:32px;padding-block:0}
+  #bar .srow #langs .tab{min-height:30px;height:30px;padding:0 10px}
+  #bar .tagsec{flex:1 1 0;min-width:0}
+  #bar #chips{display:flex;flex-wrap:wrap;gap:4px}
+  #bar #chips .chip{width:auto;height:28px;padding:0 10px;flex:none}
+  #bar #chips .chip.clr{grid-column:auto}
+}
 </style>
 
 <div class="wrap">
