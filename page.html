@@ -799,6 +799,23 @@ body.role-b #pv .foot .memo-n{order:3}
   #mp .wrap>.mpanel{grid-column:2;grid-row:4;margin-top:10px}
   #mp .mlegend{grid-template-columns:1fr}
 }
+
+/* ==== 2択・まとめ操作を「それとわかる形」に ==== */
+/* 詳細／全体：画面切替と同じつまみ型（薄い帯の中で、選んでいる方だけ色付き） */
+#minib.vseg{background:var(--accent-soft)!important;border-radius:999px;padding:3px;gap:2px;box-sizing:border-box;width:auto;min-width:0;align-self:center}
+#minib.vseg button,.drow #minib.vseg button,.drow #minib.vseg button[aria-pressed=true]{border:0!important;background:transparent;color:var(--accent);min-height:40px!important;height:40px!important;font-size:.88rem!important;font-weight:800;width:auto;min-width:56px;max-width:none;padding:0 12px;box-shadow:none;border-radius:999px}
+#minib.vseg button[aria-pressed=true],.drow #minib.vseg button[aria-pressed=true]{background:var(--accent)!important;color:#fff;box-shadow:0 2px 6px -2px rgba(80,30,50,.45)}
+/* EN／JP：両方選べるので、1つの帯にまとめ、選んでいる方に✓ */
+#langs{background:var(--accent-soft);border-radius:999px;padding:3px;gap:2px!important;align-items:center}
+#langs .tab,#bar .srow #langs .tab{border:0!important;background:transparent;color:var(--accent);box-shadow:none;border-radius:999px;font-weight:800;min-height:30px;height:30px;padding:0 10px}
+#langs .tab[aria-pressed=true]{background:var(--accent);color:#fff;box-shadow:0 2px 6px -2px rgba(80,30,50,.45)}
+#langs .tab[aria-pressed=true]::before{content:'✓ ';font-weight:900}
+/* すべて選ぶ／すべて外す：タグとは別物の「操作ボタン」として、左右がくっついた1組に */
+.chip.clr{background:var(--panel)!important;border:1.5px solid var(--accent)!important;color:var(--accent)!important;font-weight:800;border-style:solid!important}
+.chip.clr:has(+ .chip.clr){border-radius:999px 0 0 999px!important;margin-right:-3px;border-right-width:.75px!important}
+.chip.clr + .chip.clr{border-radius:0 999px 999px 0!important;margin-left:-3px;border-left-width:.75px!important}
+.chip.clr:active{background:var(--accent-soft)!important}
+@media (max-width:699px){#chips .chip.clr,#pv .ptchips .chip.clr,#mp .mtags .chip.clr{width:calc(100% + 3px)!important;box-sizing:border-box}#chips .chip.clr+.chip.clr,#pv .ptchips .chip.clr+.chip.clr,#mp .mtags .chip.clr+.chip.clr{margin-left:-3px;justify-self:end}#chips .chip.clr:has(+.chip.clr),#pv .ptchips .chip.clr:has(+.chip.clr),#mp .mtags .chip.clr:has(+.chip.clr){margin-right:0;justify-self:start}}
 </style>
 
 <div class="wrap">
@@ -852,8 +869,8 @@ body.role-b #pv .foot .memo-n{order:3}
   const tagsOfTalk=i=>typeof TAGS==='undefined'?[]:TAGS.filter(t=>tagHit(i,t));
   const tagSum=()=>{const sel=TAGS.filter(t=>TSEL.has(t.key)).map(t=>t.label);$('tsum').textContent=sel.length===0?'なし（押して選ぶ）':sel.length===TAGS.length?'全部':sel.join('・')};
   function buildChips(){if(typeof TAGS==='undefined')return;chips.innerHTML='';tagSum();
-    const all=document.createElement('button');all.className='chip clr';all.type='button';all.textContent='全部';all.onclick=()=>{TAGS.forEach(t=>TSEL.add(t.key));buildChips();try{localStorage.setItem('jshg2026tags',JSON.stringify([...TSEL]))}catch(e){};render()};chips.appendChild(all);
-    const c=document.createElement('button');c.className='chip clr';c.type='button';c.textContent='解除';c.onclick=()=>{TSEL.clear();buildChips();try{localStorage.removeItem('jshg2026tags')}catch(e){};render()};chips.appendChild(c);
+    const all=document.createElement('button');all.className='chip clr';all.type='button';all.textContent='✓ すべて選ぶ';all.onclick=()=>{TAGS.forEach(t=>TSEL.add(t.key));buildChips();try{localStorage.setItem('jshg2026tags',JSON.stringify([...TSEL]))}catch(e){};render()};chips.appendChild(all);
+    const c=document.createElement('button');c.className='chip clr';c.type='button';c.textContent='✕ すべて外す';c.onclick=()=>{TSEL.clear();buildChips();try{localStorage.removeItem('jshg2026tags')}catch(e){};render()};chips.appendChild(c);
     TAGS.forEach(t=>{const b=document.createElement('button');b.className='chip';b.type='button';b.textContent=t.label;b.title=t.desc;b.setAttribute('aria-pressed',TSEL.has(t.key));
       b.onclick=()=>{if(TSEL.has(t.key))TSEL.delete(t.key);else TSEL.add(t.key);b.setAttribute('aria-pressed',TSEL.has(t.key));tagSum();try{localStorage.setItem('jshg2026tags',JSON.stringify([...TSEL]))}catch(e){};render()};chips.appendChild(b)})}
   document.addEventListener('DOMContentLoaded',()=>{buildChips();if(TSEL.size)render()});
@@ -1376,7 +1393,7 @@ function legend(){
   [...$('mmode').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===st.mode));
   const pk=st.panel==='k';$('mlegend').hidden=!pk;const tp=$('mtags');tp.hidden=pk;
   [...$('mpsw').children].forEach(b=>{b.setAttribute('aria-pressed',b.dataset.ps===st.panel);if(b.dataset.ps==='t')b.textContent='注目タグ'+(st.tags.length?'（'+st.tags.length+'）':'')});
-  if(!pk)tp.innerHTML=`<button type="button" class="chip clr" data-ta="all">全部</button><button type="button" class="chip clr" data-ta="none">解除</button>`
+  if(!pk)tp.innerHTML=`<button type="button" class="chip clr" data-ta="all">✓ すべて選ぶ</button><button type="button" class="chip clr" data-ta="none">✕ すべて外す</button>`
     +TG().map(t=>`<button type="button" class="chip" data-tk="${esc(t.key)}" aria-pressed="${st.tags.includes(t.key)}" title="${esc(t.desc||'')}">${esc(t.label)}</button>`).join('');
   $('mnote').innerHTML='';
 }
@@ -1706,7 +1723,7 @@ document.addEventListener("submit",e=>{
 $("pq").value=S.q||"";
 (function(){const box=$("ptchips");
   const mk=(txt,cls,fn,key)=>{const b=document.createElement("button");b.type="button";b.className="chip"+(cls?" "+cls:"");b.textContent=txt;if(key)b.dataset.tkey=key;b.addEventListener("click",ev=>{ev.stopPropagation();fn();sync();save();render()});box.appendChild(b);return b};
-  mk("全部","clr",()=>{S.tsel=TAGS.map(t=>t.key)});mk("解除","clr",()=>{S.tsel=[]});
+  mk("✓ すべて選ぶ","clr",()=>{S.tsel=TAGS.map(t=>t.key)});mk("✕ すべて外す","clr",()=>{S.tsel=[]});
   TAGS.forEach(t=>{const b=mk(t.label,"",()=>{S.tsel=S.tsel.includes(t.key)?S.tsel.filter(x=>x!==t.key):S.tsel.concat(t.key)},t.key);b.title=t.desc});
   function sync(){box.querySelectorAll("[data-tkey]").forEach(b=>b.setAttribute("aria-pressed",S.tsel.includes(b.dataset.tkey)))}
   sync()})();
