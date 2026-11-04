@@ -778,6 +778,26 @@ body.role-b #pv .foot .memo-n{order:3}
   #bar #chips{display:flex;flex-wrap:wrap;gap:4px}
   #bar #chips .chip{width:auto;height:28px;padding:0 10px;flex:none}
   #bar #chips .chip.clr{grid-column:auto}
+  /* ポスター：横幅いっぱい・カードを複数列に */
+  #pv .wrap{max-width:none}
+  #pv .bar{flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 10px}
+  #pv .bar>h1{flex:none;margin:0}
+  #pv .bar>#ppdays,#pv .bar>#ptiers{flex:1 1 360px;min-width:0}
+  #pv .bar>.srow{flex:1 1 420px;min-width:0}
+  #pv .bar>.ptchips,#pv .bar>.tabdesc,#pv .bar>.kwdef,#pv .bar>.pthemerow{flex:1 1 100%;min-width:0}
+  #pv .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:8px;align-items:start}
+  /* 分析：左に地図（画面の高さに合わせる）、右に凡例と詳細カード */
+  #mp .wrap{max-width:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,400px);column-gap:14px;align-items:start}
+  #mp .wrap>.mockbanner,#mp .wrap>.bar{grid-column:1 / -1}
+  #mp .bar{flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 10px}
+  #mp .bar>h1{flex:none;margin:0}
+  #mp .bar>#mmode{flex:1 1 360px;width:auto;min-width:0}
+  #mp .bar>.mrow{flex:1 1 420px;min-width:0}
+  #mp .bar>.mnote{flex:1 1 100%}
+  #mp .wrap>.mapbox{grid-column:1;grid-row:3 / span 2;aspect-ratio:auto;height:calc(100vh - 150px);max-height:none;position:sticky;top:64px}
+  #mp .wrap>.mcard{grid-column:2;grid-row:3}
+  #mp .wrap>.mpanel{grid-column:2;grid-row:4;margin-top:10px}
+  #mp .mlegend{grid-template-columns:1fr}
 }
 </style>
 
