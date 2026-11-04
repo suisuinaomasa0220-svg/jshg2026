@@ -810,7 +810,9 @@ body.role-b #pv .foot .memo-n{order:3}
 #langs{background:var(--accent-soft);border-radius:999px;padding:3px;gap:2px!important;align-items:center}
 #langs .tab,#bar .srow #langs .tab{border:0!important;background:transparent;color:var(--accent);box-shadow:none;border-radius:999px;font-weight:800;min-height:30px;height:30px;padding:0 10px}
 #langs .tab[aria-pressed=true]{background:var(--accent);color:#fff;box-shadow:0 2px 6px -2px rgba(80,30,50,.45)}
-#langs .tab[aria-pressed=true]::before{content:'✓ ';font-weight:900}
+#langs .tab::before{content:'✓ ';font-weight:900;visibility:hidden}
+#langs .tab[aria-pressed=true]::before{visibility:visible}
+#langs .tab{min-width:4.2em;text-align:center}
 /* すべて選ぶ／すべて外す：タグとは別物の「操作ボタン」として、左右がくっついた1組に */
 .chip.clr{background:var(--panel)!important;border:1.5px solid var(--accent)!important;color:var(--accent)!important;font-weight:800;border-style:solid!important}
 .chip.clr:has(+ .chip.clr){border-radius:999px 0 0 999px!important;margin-right:-3px;border-right-width:.75px!important}
