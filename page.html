@@ -826,10 +826,14 @@ body.role-b #pv .foot .memo-n{order:3}
 .crdl{font-size:.8rem;color:var(--muted);margin:2px 0 6px;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
 
 /* 5〜10分の式典など：1行だけの細い札にする（印ボタンなし） */
-.slot.tiny{height:auto!important;min-height:18px;z-index:3}
-.slot.tiny .sess{padding:1px 6px!important;min-height:18px;display:flex;align-items:center;overflow:hidden}
-.slot.tiny .sess .meta{display:none}
-.slot.tiny .sess *{font-size:.66rem!important;line-height:1.2!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot.tiny{height:auto!important;min-height:26px;z-index:6;right:auto!important;width:max-content!important;max-width:min(330px,92vw)}
+.slot.tiny .sess{padding:2px 8px!important;min-height:26px;display:flex;flex-direction:row;align-items:center;gap:6px;overflow:hidden;background:#fff!important;border:2px solid var(--accent)!important;border-radius:999px!important;box-shadow:0 2px 6px -3px rgba(80,30,50,.5)}
+.slot.tiny .sess .meta{display:flex;margin:0;flex:none}
+.slot.tiny .sess .meta>:not(.tr){display:none!important}
+.slot.tiny .sess .meta .tr{color:var(--accent);font-weight:800}
+.slot.tiny .sess *{font-size:.78rem!important;line-height:1.2!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot.tiny .sess .sname{font-weight:800;color:var(--fg)}
+body.mini .slot.tiny .sess{border-width:1.5px!important;padding:0 4px!important}
 </style>
 
 <div class="wrap">
