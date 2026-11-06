@@ -1,5 +1,5 @@
 <script>/*__BOOT__*/</script>
-<script>/* 文字サイズ（小・中・大）：最初に当てて、表示のちらつきを防ぐ */try{const f=localStorage.getItem('jshg2026fs');if(f==='s'||f==='l')document.documentElement.classList.add('fs-'+f)}catch(e){}</script>
+<script>/* 文字サイズ（小・中・大）：最初に当てて、表示のちらつきを防ぐ */try{const f=localStorage.getItem('jshg2026fs');if(f==='s'||f==='l')document.documentElement.classList.add('fs-'+f)}catch(e){}try{if(localStorage.getItem('jshg2026dark')==='1')document.documentElement.classList.add('dark')}catch(e){}</script>
 <!-- 注意（本番=Apps Script経由の前処理）: JSの中に「//」をコメント以外で書かない（正規表現 /<\//g など）。「/」の割り算も「*0.5」のように掛け算で書く。誤って正規表現と解釈され、画面が真っ白になる -->
 <script>document.documentElement.setAttribute('data-theme','light');</script>
 <title>JSHG2026 プログラム</title>
@@ -847,6 +847,14 @@ html.fs-s .bar,html.fs-s #bbar,html.fs-s #fsB,html.fs-s .who2{zoom:1.1364}
 .fsbtn:active{transform:scale(.94)}
 #fsB{position:fixed;left:max(12px,env(safe-area-inset-left,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:30;display:none;box-shadow:0 4px 12px -4px rgba(80,30,50,.45)}
 body.pmode #fsB,body.mmode #fsB{display:inline-flex}
+
+/* ダークモード：画面全体の明暗を反転し、色相を戻して色の意味（紫＝すいすい・緑＝AT・種別色）を保つ。写真・アイコンは元に戻す */
+html.dark{filter:invert(.9) hue-rotate(180deg);background:#fff}
+html.dark img{filter:invert(1) hue-rotate(180deg)}
+html.dark{color-scheme:light}
+.dkbtn{width:34px;padding:0;justify-content:center;font-size:15px;margin-left:-2px}
+#dkB{position:fixed;left:calc(max(12px,env(safe-area-inset-left,0px)) + 70px);bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:30;display:none;box-shadow:0 4px 12px -4px rgba(80,30,50,.45)}
+body.pmode #dkB,body.mmode #dkB{display:inline-flex}
 </style>
 
 <div class="wrap">
@@ -1196,6 +1204,12 @@ body.pmode #fsB,body.mmode #fsB{display:inline-flex}
    const paint=()=>{const v=cur();[A,B].forEach(b=>{b.innerHTML='<span class="fsa">Aa</span>'+NM[v]})};
    const next=()=>{const v=FS[(FS.indexOf(cur())+1)%3],c=document.documentElement.classList;c.remove('fs-s','fs-l');if(v!=='m')c.add('fs-'+v);try{localStorage.setItem('jshg2026fs',v)}catch(e){}paint();window.dispatchEvent(new Event('resize'))};
    A.addEventListener('click',next);B.addEventListener('click',next);paint()}
+  /* ダークモードの切替（☾＝暗く／☀＝明るく）。文字サイズボタンの右隣 */
+  {const mk=id=>{const b=document.createElement('button');b.type='button';b.id=id;b.className='fsbtn dkbtn';return b};
+   const A=mk('dkA'),B=mk('dkB'),fa=document.getElementById('fsA');fa.after(A);document.body.appendChild(B);
+   const paint=()=>{const on=document.documentElement.classList.contains('dark');[A,B].forEach(b=>{b.textContent=on?'☀':'☾';b.setAttribute('aria-label',on?'明るい表示にする':'暗い表示にする');b.setAttribute('aria-pressed',on)})};
+   const tog=()=>{const on=document.documentElement.classList.toggle('dark');try{localStorage.setItem('jshg2026dark',on?'1':'0')}catch(e){}paint()};
+   A.addEventListener('click',tog);B.addEventListener('click',tog);paint()}
   const pubH=()=>document.documentElement.style.setProperty('--bbar-h',bbar.offsetHeight+'px');pubH();if(window.ResizeObserver)new ResizeObserver(pubH).observe(bbar);window.addEventListener('resize',pubH);
   const TT={2:'印＋動線',1:'印だけ',0:'非表示'};const sync=()=>{for(const k of ['a','b']){const b=bar.querySelector('.'+k);b.setAttribute('aria-pressed',SHOW[k]>0);b.dataset.s=SHOW[k];b.title=TT[SHOW[k]]+'（押すと切替）';document.body.classList.toggle('hide-'+k,SHOW[k]===0)}};sync();
   bar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=b.classList.contains('a')?'a':'b';SHOW[k]=(SHOW[k]+1)%3;sync();
