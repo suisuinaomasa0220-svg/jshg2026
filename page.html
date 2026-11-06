@@ -834,6 +834,16 @@ body.role-b #pv .foot .memo-n{order:3}
 .slot.tiny .sess *{font-size:.78rem!important;line-height:1.2!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .slot.tiny .sess .sname{font-weight:800;color:var(--fg)}
 body.mini .slot.tiny .sess{border-width:1.5px!important;padding:0 4px!important}
+
+/* 画像保存ボタンと表示 */
+.imgbtn{flex:none;height:30px;padding:0 12px;border-radius:999px;border:1.5px solid var(--accent);background:var(--panel);color:var(--accent);font:inherit;font-weight:800;font-size:.85rem;margin-left:6px}
+.imgbtn:active{transform:scale(.94)}
+.imgov{position:fixed;inset:0;z-index:200;background:rgba(40,20,30,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+.imgbox{background:#fff;border-radius:16px;max-width:520px;width:100%;max-height:92vh;display:flex;flex-direction:column;gap:8px;padding:12px;box-sizing:border-box}
+.imghd{display:flex;align-items:center;justify-content:space-between;font-size:.9rem;color:var(--fg)}
+.imgx{border:0;background:var(--accent-soft);color:var(--accent);width:32px;height:32px;border-radius:50%;font-size:1.1rem;font-weight:800}
+.imgbox img{width:100%;height:auto;overflow:auto;border-radius:10px;border:1px solid #ecd9e1;flex:1;min-height:0;object-fit:contain}
+.imgdl{align-self:center;color:var(--accent);font-weight:800;font-size:.85rem}
 </style>
 
 <div class="wrap">
@@ -906,7 +916,7 @@ body.mini .slot.tiny .sess{border-width:1.5px!important;padding:0 4px!important}
   };
   const picks=code=>{const p=plan[code]||{};return `<div class="who2"><button class="pick a" data-p="a" data-c="${esc(code)}" aria-pressed="${!!p.a}" ${ROLE==='a'?'':'disabled'}>${esc(labels.a||'A')}</button><button class="pick b" data-p="b" data-c="${esc(code)}" aria-pressed="${!!p.b}" ${ROLE==='b'?'':'disabled'}>${esc(labels.b||'B')}</button></div>`};
   const byCode=new Map();items.forEach(i=>{const c=i.code.split('-')[0];if(!byCode.has(c))byCode.set(c,i)});
-  window.__ttItems=items;window.__ttPlan=()=>plan;
+  window.__ttItems=items;window.__ttPlan=()=>plan;window.__ttImgCtx=()=>({day,plan,labels,byCode,SJA,items,tmin});
   window.__ttTagKeys=code=>{const i=items.find(x=>x.code===code);return i?tagsOfTalk(i).map(t=>t.key):[]};
   /* 地図から：その演題の日に切り替え、コマを画面に入れてから詳細フロートを開き、演題の行を強調 */
   window.__ttOpen=code=>{const i=items.find(x=>x.code===code);if(!i)return;
@@ -1176,6 +1186,41 @@ body.mini .slot.tiny .sess{border-width:1.5px!important;padding:0 4px!important}
   bar.innerHTML='<span class="rl0">表示</span><button type="button" class="a">すい</button><button type="button" class="b">AT</button>';
   // 画面下の固定部品は1本のバー（#bbar）にまとめる：左=表示する人、右=いま。高さは --bbar-h で他要素（横スクロールバー・余白・トースト）に伝える
   const bbar=document.createElement('div');bbar.id='bbar';bbar.appendChild(bar);const nb=document.getElementById('nowbtn');if(nb)bbar.appendChild(nb);document.body.appendChild(bbar);
+  /* その日の2人の予定を1枚の画像にして保存・共有（電波がなくても見返せるように） */
+  const ib=document.createElement('button');ib.type='button';ib.id='imgbtn';ib.className='imgbtn';ib.setAttribute('aria-label','この日の予定を画像で保存');ib.innerHTML='<span>画像</span>';
+  if(nb)bbar.insertBefore(ib,nb);else bbar.appendChild(ib);
+  function planImage(){
+    const {day,plan,labels,byCode,SJA,items,tmin}=window.__ttImgCtx(),ROLE=(window.__BOOT__||{}).role||'';
+    const ord=ROLE==='b'?['b','a']:['a','b'];
+    const rows=[...byCode.values()].filter(x=>x.date===day&&(plan[x.code.split('-')[0]]||{}).a||x.date===day&&(plan[x.code.split('-')[0]]||{}).b).sort((x,y)=>tmin(x.time)-tmin(y.time));
+    const ttl=x=>{const c=x.code.split('-')[0];if(x.kind==='シンポジウム')return SJA[c]||String(x.session||'').replace(new RegExp('^S[0-9]+\\s*'),'');const t=items.find(i=>i.code.split('-')[0]===c);return (t&&(t.ja||t.title))||x.session||''};
+    const W=1080,P=56,cv=document.createElement('canvas'),g=cv.getContext('2d'),F='"Noto Sans JP","Hiragino Sans","Yu Gothic",system-ui,sans-serif';
+    const css=getComputedStyle(document.documentElement),col=n=>(css.getPropertyValue(n)||'').trim();
+    const CA=col('--pa')||'#8a4fb0',CB=col('--pb')||'#2f9a60',AC=col('--accent')||'#b85c7a';
+    const wrap=(t,w,font,max)=>{g.font=font;const out=[];let cur='';for(const ch of String(t)){if(g.measureText(cur+ch).width>w){out.push(cur);cur=ch;if(out.length===max)break}else cur+=ch}if(out.length<max&&cur)out.push(cur);if(out.length===max&&g.measureText(out[max-1]).width>w-30){out[max-1]=out[max-1].slice(0,-1)+'…'}return out};
+    const rowH=x=>{const n=wrap(ttl(x),W-P*2-230,'700 34px '+F,2).length;return 120+n*46};
+    const H=P+150+(rows.length?rows.reduce((h,x)=>h+rowH(x)+22,0):120)+90;
+    cv.width=W;cv.height=H;g.fillStyle='#fdf8fa';g.fillRect(0,0,W,H);
+    g.fillStyle='#4b1528';g.font='800 52px '+F;g.fillText('JSHG2026　'+day+' の予定',P,P+52);
+    let x=P;g.font='700 28px '+F;ord.forEach(k=>{const c=k==='a'?CA:CB,t=labels[k]||k;g.fillStyle=c;g.beginPath();g.arc(x+12,P+104,12,0,7);g.fill();g.fillStyle='#2c2630';g.fillText(t,x+32,P+114);x+=g.measureText(t).width+80});
+    let y=P+150;
+    if(!rows.length){g.fillStyle='#7a6f78';g.font='600 32px '+F;g.fillText('この日はまだ印がありません',P,y+60);y+=120}
+    rows.forEach(r=>{const c=r.code.split('-')[0],m=plan[c]||{},h=rowH(r);
+      g.fillStyle='#ffffff';g.strokeStyle='#ecd9e1';g.lineWidth=2;g.beginPath();g.roundRect(P,y,W-P*2,h,22);g.fill();g.stroke();
+      g.fillStyle=AC;g.font='800 34px '+F;const [t0,t1]=r.time.split('-');g.fillText(t0,P+28,y+56);g.fillStyle='#7a6f78';g.font='600 26px '+F;g.fillText('〜'+(t1||''),P+28,y+92);
+      let bx=P+200;ord.forEach(k=>{if(!m[k])return;const t=labels[k]||k;g.font='800 24px '+F;const w=g.measureText(t).width+28;g.fillStyle=k==='a'?CA:CB;g.beginPath();g.roundRect(bx,y+26,w,40,20);g.fill();g.fillStyle='#fff';g.fillText(t,bx+14,y+55);bx+=w+10});
+      g.fillStyle='#4b1528';g.font='700 26px '+F;g.fillText(c+'　'+String(r.room||''),bx+8,y+55);
+      g.fillStyle='#2c2630';wrap(ttl(r),W-P*2-230,'700 34px '+F,2).forEach((ln,i)=>{g.font='700 34px '+F;g.fillText(ln,P+200,y+112+i*46)});
+      y+=h+22});
+    g.fillStyle='#7a6f78';g.font='500 24px '+F;const now=new Date();g.fillText('JSHG2026 学会アプリ　'+(now.getMonth()+1)+'/'+now.getDate()+' '+now.getHours()+':'+String(now.getMinutes()).padStart(2,'0')+' 時点',P,H-40);
+    return cv}
+  function showImg(url,name){let ov=document.getElementById('imgov');if(ov)ov.remove();ov=document.createElement('div');ov.id='imgov';ov.className='imgov';
+    ov.innerHTML=`<div class="imgbox"><div class="imghd"><b>画像を長押しして保存</b><button type="button" class="imgx" aria-label="閉じる">×</button></div><img alt="この日の予定" src="${url}"><a class="imgdl" download="${name}" href="${url}">ダウンロード</a></div>`;
+    ov.addEventListener('click',e=>{if(e.target===ov||e.target.closest('.imgx'))ov.remove()});document.body.appendChild(ov)}
+  ib.addEventListener('click',async()=>{const day=window.__ttImgCtx().day,cv=planImage(),name='予定_JSHG2026_'+day.replace(new RegExp('[^0-9]','g'),'')+'.png',url=cv.toDataURL('image/png');
+    try{const bl=await new Promise(r=>cv.toBlob(r,'image/png'));const f=new File([bl],name,{type:'image/png'});
+      if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'JSHG2026 '+day+' の予定'});return}}catch(e){if(e&&e.name==='AbortError')return}
+    showImg(url,name)});
   const pubH=()=>document.documentElement.style.setProperty('--bbar-h',bbar.offsetHeight+'px');pubH();if(window.ResizeObserver)new ResizeObserver(pubH).observe(bbar);window.addEventListener('resize',pubH);
   const TT={2:'印＋動線',1:'印だけ',0:'非表示'};const sync=()=>{for(const k of ['a','b']){const b=bar.querySelector('.'+k);b.setAttribute('aria-pressed',SHOW[k]>0);b.dataset.s=SHOW[k];b.title=TT[SHOW[k]]+'（押すと切替）';document.body.classList.toggle('hide-'+k,SHOW[k]===0)}};sync();
   bar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const k=b.classList.contains('a')?'a':'b';SHOW[k]=(SHOW[k]+1)%3;sync();
