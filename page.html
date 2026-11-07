@@ -861,6 +861,15 @@ body.pmode #dkB,body.mmode #dkB{display:inline-flex}
 #mp .mrow #mlayers::-webkit-scrollbar{display:none}
 #mp .mrow #mlayers .mly{flex:none;padding:4px 8px;font-size:.72rem}
 #mp .mly .mli,#mp .mly .mri{margin-right:3px}
+
+/* シンポジウムの見出し：注目タグを横1行にまとめる（指で横にスクロール）。「すべて選ぶ｜すべて外す」は先頭に */
+@media (max-width:699px){
+  #bar #chips{display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;gap:4px;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+  #bar #chips::-webkit-scrollbar{display:none}
+  #bar #chips .chip{width:auto!important;flex:none;height:30px;padding:0 10px;font-size:.76rem}
+  #bar #chips .chip.clr{width:auto!important;padding:0 9px;justify-self:auto}
+  #bar #chips .chip.clr+.chip.clr{margin-left:-4px;margin-right:6px}
+}
 </style>
 
 <div class="wrap">
