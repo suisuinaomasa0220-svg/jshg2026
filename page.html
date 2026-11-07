@@ -855,6 +855,12 @@ html.dark{color-scheme:light}
 .dkbtn{width:34px;padding:0;justify-content:center;font-size:15px;margin-left:-2px}
 #dkB{position:fixed;left:calc(max(12px,env(safe-area-inset-left,0px)) + 70px);bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:30;display:none;box-shadow:0 4px 12px -4px rgba(80,30,50,.45)}
 body.pmode #dkB,body.mmode #dkB{display:inline-flex}
+
+/* 分析画面の上のボタン列を1行にまとめる（入りきらない幅では横にスクロール） */
+#mp .mrow #mlayers{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;gap:4px}
+#mp .mrow #mlayers::-webkit-scrollbar{display:none}
+#mp .mrow #mlayers .mly{flex:none;padding:4px 8px;font-size:.72rem}
+#mp .mly .mli,#mp .mly .mri{margin-right:3px}
 </style>
 
 <div class="wrap">
@@ -1438,9 +1444,9 @@ function legend(){
   const tot=M.clusters.map((_,k)=>M.items.filter(it=>it.k===k&&vis(it)).length);
   const hit=M.clusters.map((_,k)=>M.items.filter(it=>it.k===k&&vis(it)&&hitsOf(it).length>0).length);
   $('mlegend').innerHTML=M.clusters.map((n,k)=>tot[k]?`<button type="button" class="mchip" data-k="${k}" aria-pressed="${st.hi===k}" style="--c:${COLS[k%COLS.length]}"><i>${k+1}</i>${esc(n)}<small>${tagOn?'当たり '+hit[k]+'/'+tot[k]:tot[k]}</small></button>`:'').join('');
-  $('mlayers').innerHTML=[['t','シンポジウム'],['p','ポスター']].map(([k,v])=>`<button type="button" class="tab mly" data-l="${k}" aria-pressed="${st.layers[k]}"><i class="mli${k==='p'?' sm':''}"></i>${v}</button>`).join('')
-    +((ROLE==='b'?[['b','AT','--pb'],['a','すいすい','--pa']]:[['a','すいすい','--pa'],['b','AT','--pb']]).map(([k,v,cv])=>`<button type="button" class="tab mly" data-rg="${k}" aria-pressed="${st.rings[k]}"><i class="mri" style="--rc:var(${cv})"></i>${v}</button>`).join(''))
-    +`<button type="button" class="tab mly" data-lbsw="1" aria-pressed="${st.labels>0}" title="押すたびに なし→番号→番号＋名前">${['番号なし','番号','番号＋名前'][st.labels]}</button>`
+  $('mlayers').innerHTML=[['t','シンポ'],['p','ポスター']].map(([k,v])=>`<button type="button" class="tab mly" data-l="${k}" aria-pressed="${st.layers[k]}"><i class="mli${k==='p'?' sm':''}"></i>${v}</button>`).join('')
+    +((ROLE==='b'?[['b','AT','--pb'],['a','すい','--pa']]:[['a','すい','--pa'],['b','AT','--pb']]).map(([k,v,cv])=>`<button type="button" class="tab mly" data-rg="${k}" aria-pressed="${st.rings[k]}"><i class="mri" style="--rc:var(${cv})"></i>${v}</button>`).join(''))
+    +`<button type="button" class="tab mly" data-lbsw="1" aria-pressed="${st.labels>0}" title="押すたびに なし→番号→番号＋名前">${['番号なし','番号','番号＋名'][st.labels]}</button>`
     +(HOVER?`<button type="button" class="tab mly" data-tipsw="1" aria-pressed="${st.tip}">フロート</button>`:'')
   ;
   [...$('mmode').children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===st.mode));
