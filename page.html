@@ -870,6 +870,17 @@ body.pmode #dkB,body.mmode #dkB{display:inline-flex}
   #bar #chips .chip.clr{width:auto!important;padding:0 9px;justify-self:auto}
   #bar #chips .chip.clr+.chip.clr{margin-left:-4px;margin-right:6px}
 }
+
+/* 画面下のバー（スマホ）：「すい」「AT」が折り返さないように詰める。「表示」の文字は省く */
+@media (max-width:699px){
+  #bbar{gap:5px}
+  #bbar .rtog{gap:4px}
+  #bbar .rtog .rl0{display:none}
+  #bbar .rtog button{white-space:nowrap;min-width:0;flex:1 1 0;padding-inline:6px!important}
+  #bbar .nowbtn{padding:9px 14px!important;white-space:nowrap}
+  #bbar .fsbtn{padding:0 8px}
+  #bbar .dkbtn{width:30px;padding:0}
+}
 </style>
 
 <div class="wrap">
