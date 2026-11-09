@@ -882,6 +882,8 @@ body.pmode #dkB,body.mmode #dkB{display:inline-flex}
   #bbar .fsbtn{padding:0 8px}
   #bbar .dkbtn{width:30px;padding:0}
 }
+details.orig,details.tabs2.orig{margin-top:6px;font-size:.92em;opacity:.85}
+details.orig>summary,details.tabs2.orig>summary{cursor:pointer;color:var(--muted)}
 </style>
 
 <div class="wrap">
@@ -1031,7 +1033,7 @@ body.pmode #dkB,body.mmode #dkB{display:inline-flex}
     if(openSess){const o=openSess;
       let p=`${(o.s.kind==='シンポジウム'||o.s.kind==='一般口演'||o.s.sponsor)?`<div class="ptitle">${hl(o.s.session.replace(/^S\d+\s*/,''),terms)}${SJA[o.s.code.split('-')[0]]?`<div class="ja">${hl(SJA[o.s.code.split('-')[0]],terms)}</div>`:''}</div>`:''}<div class="chairs">${esc(o.s.kind)}　${esc(o.s.date)} ${esc(o.s.time)}　${esc(o.s.room)}${o.s.chairs?`　座長：${hl(o.s.chairs,terms)}`:''}</div>${o.s.credit?`<div class="crdl">単位認定：${[...o.s.credit].map(c=>`<span class="crd"><i>${c}</i></span>${CRN[c]}`).join('　')}</div>`:''}<ul class="talks">`;
       const tagsOf=x=>{const t=tagsOfTalk(x);return t.length?`<div class="ttags">${t.map(t=>`<span class="ttag${TSEL.has(t.key)?' sel':''}">${esc(t.label)}</span>`).join('')}</div>`:''};
-      o.talks.forEach(x=>{const hit=filtering?match(x,terms):null;p+=`<li class="talk${hit===true?' hit':hit===false?' miss':''}"><span class="tc">${esc(x.code)}</span>${hl(x.title,terms)}${x.ja?`<div class="ja">${hl(x.ja,terms)}</div>`:''}${x.speaker||x.affil?`<div class="who">${hl(x.speaker,terms)}${x.affil?`（${hl(x.affil,terms)}）`:''}</div>`:''}${tagsOf(x)}${(x.abs||x.abs_ja||x.absja)?`<details class="tabs2"><summary>要旨</summary><div class="abs">${hl(x.abs_ja||x.absja||x.abs,terms)}</div></details>`:''}</li>`});
+      o.talks.forEach(x=>{const hit=filtering?match(x,terms):null;p+=`<li class="talk${hit===true?' hit':hit===false?' miss':''}"><span class="tc">${esc(x.code)}</span>${hl(x.title,terms)}${x.ja?`<div class="ja">${hl(x.ja,terms)}</div>`:''}${x.speaker||x.affil?`<div class="who">${hl(x.speaker,terms)}${x.affil?`（${hl(x.affil,terms)}）`:''}</div>`:''}${tagsOf(x)}${(x.abs||x.abs_ja||x.absja)?`<details class="tabs2"><summary>要旨</summary><div class="abs">${hl(x.abs_ja||x.absja||x.abs,terms)}</div>${(x.abs_ja&&x.abs)?`<details class="tabs2 orig"><summary>原文（英語）</summary><div class="abs">${hl(x.abs,terms)}</div></details>`:''}</details>`:''}</li>`});
       $('sbody').innerHTML='<div class="sbin">'+p+'</ul></div>';$('sbody').dataset.kind=KIND[o.s.kind]||'';sh.hidden=false;
       const si=sh.firstElementChild;si.style.marginTop='0px';
       (()=>{const btn=out.querySelector(`.sess[aria-expanded="true"]`);const bb=document.getElementById('bbar');const vh=window.innerHeight-(bb?bb.offsetHeight:0),h=si.offsetHeight;let top; /* 下のバーに隠れない範囲で置く */
@@ -1103,6 +1105,8 @@ body.pmode #dkB,body.mmode #dkB{display:inline-flex}
   /* 抄録（英語）は別ファイル abstracts.json（GitHub）から後読み。失敗しても画面はそのまま */
   window.__absMap=null;const absUrl='https:\/\/raw.githubusercontent.com/suisuinaomasa0220-svg/jshg2026/main/abstracts.json'; /* スラッシュ2つを続けて書かない（本番の前処理で壊れる） */
   (function(){if(typeof fetch!=='function')return;fetch(absUrl,{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(mp=>{if(!mp)return;window.__absMap=mp;let n=0;items.forEach(i=>{if(mp[i.code]&&!i.abs){i.abs=mp[i.code];n++}});if(n&&openKey)render();if(window.__pvSetAbs)window.__pvSetAbs(mp)}).catch(()=>{})})();
+  /* 抄録の日本語訳（abstracts_ja.json）。あれば日本語を先に、英語原文は「原文」で開く */
+  (function(){if(typeof fetch!=='function')return;fetch(absUrl.replace('abstracts.json','abstracts_ja.json'),{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(mp=>{if(!mp)return;window.__absJaMap=mp;let n=0;items.forEach(i=>{if(mp[i.code]){i.abs_ja=mp[i.code];n++}});if(n&&openKey)render();if(window.__pvSetAbsJa)window.__pvSetAbsJa(mp)}).catch(()=>{})})();
   pull();setInterval(()=>{if(document.visibilityState==='visible'&&!openKey&&Date.now()-lastScroll>4000)pull()},45000);
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pull()});
   const bar=$('bar'),btog=$('btog');
@@ -1619,6 +1623,8 @@ function classify(p,i){
 const DATA=POSTERS.map((p,i)=>classify(p,i)).sort((a,b)=>b.f.hits.length-a.f.hits.length);
 window.__pvSetAbs=mp=>{let n=0;POSTERS.forEach(p=>{if(mp[p.code]&&!p.abs){p.abs=mp[p.code];n++}});if(!n)return;const nd=POSTERS.map((p,i)=>classify(p,i)).sort((a,b)=>b.f.hits.length-a.f.hits.length);DATA.splice(0,DATA.length,...nd);if(typeof render==='function')try{render()}catch(e){}};
 if(window.__absMap)window.__pvSetAbs(window.__absMap);
+window.__pvSetAbsJa=mp=>{let n=0;POSTERS.forEach(p=>{if(mp[p.code]){p.abs_ja=mp[p.code];n++}});DATA.forEach(p=>{if(mp[p.code])p.abs_ja=mp[p.code]});if(n&&typeof render==='function')try{render()}catch(e){}};
+if(window.__absJaMap)window.__pvSetAbsJa(window.__absJaMap);
 const TIERS={hot:{name:"タグあり",why:"キーワードタグのどれかに当たる演題。当たった数が多い順"},oth:{name:"テーマ別",why:"上の条件に当たらない演題。テーマで絞って時間があれば"}};
 
 /* ---------- local state (mock only) ---------- */
@@ -1673,7 +1679,7 @@ function matches(p){
   if(S.theme&&(S.theme==="その他"?p.theme!=="その他":!p.tags.includes(S.theme)))return false;
   if(S.tsel.length){const L=TAGS.filter(t=>S.tsel.includes(t.key)).map(t=>t.label);if(!L.some(l=>p.tags.includes(l)))return false}
   const t=S.q.trim().toLowerCase();if(!t)return true;
-  const hay=[p.code,p.title,p.ja,p.affil,p.authors,p.abs,p.theme].join(" ").toLowerCase();
+  const hay=[p.code,p.title,p.ja,p.affil,p.authors,p.abs,p.abs_ja||"",p.theme].join(" ").toLowerCase();
   return t.split(/\s+/).every(w=>hay.includes(w));
 }
 function render(){
@@ -1720,7 +1726,7 @@ function sheet(code){
     ${why.length?`<div class="why2"><b>${TIERS[p.tier].name}</b>：${why.join("・")}</div>`:""}
     <div><div class="sec">著者・所属</div><div class="au">${esc(p.authors)}<br><span class="theme">${esc(p.affil)}</span></div></div>
     ${p.cat?`<div><div class="sec">分野</div><div class="au">${esc(p.cat)}</div></div>`:""}
-    <div><div class="sec">抄録</div><div class="abs">${p.abs?esc(p.abs):"（抄録は読み込み中、または未収載）"}</div></div>
+    <div><div class="sec">抄録</div><div class="abs">${p.abs_ja?esc(p.abs_ja):p.abs?esc(p.abs):"（抄録は読み込み中、または未収載）"}</div>${(p.abs_ja&&p.abs)?`<details class="orig"><summary>原文（英語）</summary><div class="abs">${esc(p.abs)}</div></details>`:""}</div>
     <div><div class="sec">メモ・リクエスト</div>
       ${ms.length?`<ul class="memos">${ms.map(x=>`<li class="memo"><span class="nm">${esc(x.name)}</span>${esc(x.text)}<span class="tm">${esc(x.at)}</span>${S.mine.includes(x.id)?`<button type="button" class="del" data-del="${x.id}">取り消す</button>`:""}</li>`).join("")}</ul>`:'<p class="hint">まだ誰も書いていません。</p>'}
     </div>
