@@ -1100,6 +1100,9 @@ body.pmode #dkB,body.mmode #dkB{display:inline-flex}
   window.__pull=pull;
   {const tag=document.createElement('span');tag.className='roletag';tag.textContent=ROLE==='a'?'すいすい用':ROLE==='b'?'AT用':'閲覧用';const h=document.querySelector('#bar h1 .swlink');if(h)h.before(tag)}
   status.textContent=ROLE?'自分の印だけ付けられます':'閲覧用（印は付けられません）';
+  /* 抄録（英語）は別ファイル abstracts.json（GitHub）から後読み。失敗しても画面はそのまま */
+  window.__absMap=null;const absUrl='https://raw.githubusercontent.com/suisuinaomasa0220-svg/jshg2026/main/abstracts.json';
+  (function(){if(typeof fetch!=='function')return;fetch(absUrl,{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(mp=>{if(!mp)return;window.__absMap=mp;let n=0;items.forEach(i=>{if(mp[i.code]&&!i.abs){i.abs=mp[i.code];n++}});if(n&&openKey)render();if(window.__pvSetAbs)window.__pvSetAbs(mp)}).catch(()=>{})})();
   pull();setInterval(()=>{if(document.visibilityState==='visible'&&!openKey&&Date.now()-lastScroll>4000)pull()},45000);
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pull()});
   const bar=$('bar'),btog=$('btog');
@@ -1614,6 +1617,8 @@ function classify(p,i){
   return {...p,f,tags:tags.map(t=>t.label),theme:first?first.label:"その他",tier,day:dayOf(p,i)};
 }
 const DATA=POSTERS.map((p,i)=>classify(p,i)).sort((a,b)=>b.f.hits.length-a.f.hits.length);
+window.__pvSetAbs=mp=>{let n=0;POSTERS.forEach(p=>{if(mp[p.code]&&!p.abs){p.abs=mp[p.code];n++}});if(!n)return;const nd=POSTERS.map((p,i)=>classify(p,i)).sort((a,b)=>b.f.hits.length-a.f.hits.length);DATA.splice(0,DATA.length,...nd);if(typeof render==='function')try{render()}catch(e){}};
+if(window.__absMap)window.__pvSetAbs(window.__absMap);
 const TIERS={hot:{name:"タグあり",why:"キーワードタグのどれかに当たる演題。当たった数が多い順"},oth:{name:"テーマ別",why:"上の条件に当たらない演題。テーマで絞って時間があれば"}};
 
 /* ---------- local state (mock only) ---------- */
@@ -1714,7 +1719,8 @@ function sheet(code){
     <div><div class="ttl">${esc(p.title)}</div><div class="ja">${esc(p.ja)}</div></div>
     ${why.length?`<div class="why2"><b>${TIERS[p.tier].name}</b>：${why.join("・")}</div>`:""}
     <div><div class="sec">著者・所属</div><div class="au">${esc(p.authors)}<br><span class="theme">${esc(p.affil)}</span></div></div>
-    <div><div class="sec">抄録</div><div class="abs">${esc(p.abs)}</div></div>
+    ${p.cat?`<div><div class="sec">分野</div><div class="au">${esc(p.cat)}</div></div>`:""}
+    <div><div class="sec">抄録</div><div class="abs">${p.abs?esc(p.abs):"（抄録は読み込み中、または未収載）"}</div></div>
     <div><div class="sec">メモ・リクエスト</div>
       ${ms.length?`<ul class="memos">${ms.map(x=>`<li class="memo"><span class="nm">${esc(x.name)}</span>${esc(x.text)}<span class="tm">${esc(x.at)}</span>${S.mine.includes(x.id)?`<button type="button" class="del" data-del="${x.id}">取り消す</button>`:""}</li>`).join("")}</ul>`:'<p class="hint">まだ誰も書いていません。</p>'}
     </div>
