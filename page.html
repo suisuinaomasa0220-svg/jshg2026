@@ -572,7 +572,13 @@ body:has(.sheet:not([hidden])) .rtog{display:none}
 .tagsec .tsum{font-size:.8rem;color:var(--accent);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .tagsec #chips{margin-top:6px}
 .talk .tabs2{margin-top:4px}
-.talk .tabs2 summary{cursor:pointer;font-size:.78rem;padding:4px 0;color:var(--accent);font-weight:700}
+.talk .tabs2 summary{cursor:pointer;display:flex;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box;min-height:44px;margin-top:6px;padding:10px 14px;border-radius:10px;background:var(--kbg,var(--chip));border:1px solid var(--kc,var(--line));color:var(--kc,var(--accent));font-size:.92rem;font-weight:800;list-style:none;-webkit-tap-highlight-color:transparent}
+.talk .tabs2 summary::-webkit-details-marker{display:none}
+.talk .tabs2 summary::after{content:'開く ▾';font-size:.8rem;font-weight:700;opacity:.8}
+.talk .tabs2[open]>summary::after{content:'閉じる ▴'}
+.talk .tabs2 summary:active{filter:brightness(.95)}
+.talk .tabs2>.abs{margin-top:8px}
+.talk .tabs2.orig>summary{min-height:38px;padding:8px 12px;font-size:.84rem;background:transparent;color:var(--muted);border-color:var(--line)}
 .talk .abs{font-size:.8rem;line-height:1.5;margin-top:4px;white-space:pre-wrap}
 .drow #tabs .tab,.drow .vseg button,.drow .btog{box-sizing:border-box;border:2px solid var(--accent);border-radius:999px;background:var(--panel);color:var(--accent);font-weight:800;font-size:.78rem;min-height:34px;height:34px;padding:0 10px;display:flex;align-items:center;justify-content:center;box-shadow:none}
 .drow .vseg button{padding:0}
@@ -883,7 +889,10 @@ body.pmode #dkB,body.mmode #dkB{display:inline-flex}
   #bbar .dkbtn{width:30px;padding:0}
 }
 details.orig,details.tabs2.orig{margin-top:6px;font-size:.92em;opacity:.85}
-details.orig>summary,details.tabs2.orig>summary{cursor:pointer;color:var(--muted)}
+details.orig>summary{cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:space-between;min-height:38px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;list-style:none;font-weight:700}
+details.orig>summary::-webkit-details-marker{display:none}
+details.orig>summary::after{content:'開く ▾';font-size:.8rem}
+details.orig[open]>summary::after{content:'閉じる ▴'}
 </style>
 
 <div class="wrap">
