@@ -893,6 +893,8 @@ details.orig>summary{cursor:pointer;color:var(--muted);display:flex;align-items:
 details.orig>summary::-webkit-details-marker{display:none}
 details.orig>summary::after{content:'開く ▾';font-size:.8rem}
 details.orig[open]>summary::after{content:'閉じる ▴'}
+.talk .who b.prof{color:var(--kc,var(--accent));font-weight:800;background:var(--kbg,transparent);border-radius:4px;padding:0 2px}
+.talk .who.aff{font-size:.78rem;opacity:.85;margin-top:2px}
 </style>
 
 <div class="wrap">
@@ -945,6 +947,15 @@ details.orig[open]>summary::after{content:'閉じる ▴'}
   /* 要旨（abs / abs_ja）がデータに入れば自動的に検索・タグ照合の対象になる */
   const absTxt=i=>(i.abs||'')+' '+(i.abs_ja||i.absja||'');
   const tagHit=(i,t)=>t.re.test(t.field==='affil'?((i.affil||'')+' '+(i.affils||[]).join(' ')):t.field==='authors'?((i.speaker||'')+' '+(i.authors||'')+' '+(i.chairs||'')):(i.session+' '+(SJA[i.code.split('-')[0]]||'')+' '+i.title+' '+i.ja+' '+absTxt(i)));
+  /* 著者は全員表示。注目の先生は強調。所属は全件を小さく */
+  const PROF=()=>{const t=typeof TAGS==='undefined'?null:TAGS.find(t=>t.key==='prof');return t?t.re:null};
+  const whoHTML=(x,terms)=>{
+    if(!x.authors){return (x.speaker||x.affil)?`<div class="who">${hl(x.speaker||'',terms)}${x.affil?`（${hl(x.affil,terms)}）`:''}</div>`:''}
+    const pr=PROF();
+    const names=String(x.authors).split(/,\s*/).filter(Boolean).map(n=>{const ja=/[\u3040-\u30ff\u4e00-\u9fff]/.test(n);const show=ja?n.replace(/（[^）]*）/g,'').trim():n.trim();
+      let h=hl(show,terms);if(pr&&pr.test(n))h=`<b class="prof">${h}</b>`;return h});
+    const af=(x.affils&&x.affils.length)?x.affils:(x.affil?[x.affil]:[]);
+    return `<div class="who">${names.join('、')}</div>`+(af.length?`<div class="who aff">${af.map(a=>hl(a,terms)).join('／')}</div>`:'')};
   const tagsOfTalk=i=>typeof TAGS==='undefined'?[]:TAGS.filter(t=>tagHit(i,t));
   const tagSum=()=>{const sel=TAGS.filter(t=>TSEL.has(t.key)).map(t=>t.label);$('tsum').textContent=sel.length===0?'なし（押して選ぶ）':sel.length===TAGS.length?'全部':sel.join('・')};
   function buildChips(){if(typeof TAGS==='undefined')return;chips.innerHTML='';tagSum();
@@ -1042,7 +1053,7 @@ details.orig[open]>summary::after{content:'閉じる ▴'}
     if(openSess){const o=openSess;
       let p=`${(o.s.kind==='シンポジウム'||o.s.kind==='一般口演'||o.s.sponsor)?`<div class="ptitle">${hl(o.s.session.replace(/^S\d+\s*/,''),terms)}${SJA[o.s.code.split('-')[0]]?`<div class="ja">${hl(SJA[o.s.code.split('-')[0]],terms)}</div>`:''}</div>`:''}<div class="chairs">${esc(o.s.kind)}　${esc(o.s.date)} ${esc(o.s.time)}　${esc(o.s.room)}${o.s.chairs?`　座長：${hl(o.s.chairs,terms)}`:''}</div>${o.s.credit?`<div class="crdl">単位認定：${[...o.s.credit].map(c=>`<span class="crd"><i>${c}</i></span>${CRN[c]}`).join('　')}</div>`:''}<ul class="talks">`;
       const tagsOf=x=>{const t=tagsOfTalk(x);return t.length?`<div class="ttags">${t.map(t=>`<span class="ttag${TSEL.has(t.key)?' sel':''}">${esc(t.label)}</span>`).join('')}</div>`:''};
-      o.talks.forEach(x=>{const hit=filtering?match(x,terms):null;p+=`<li class="talk${hit===true?' hit':hit===false?' miss':''}"><span class="tc">${esc(x.code)}</span>${hl(x.title,terms)}${x.ja?`<div class="ja">${hl(x.ja,terms)}</div>`:''}${x.speaker||x.affil?`<div class="who">${hl(x.speaker,terms)}${x.affil?`（${hl(x.affil,terms)}）`:''}</div>`:''}${tagsOf(x)}${(x.abs||x.abs_ja||x.absja)?`<details class="tabs2"><summary>要旨</summary><div class="abs">${hl(x.abs_ja||x.absja||x.abs,terms)}</div>${(x.abs_ja&&x.abs)?`<details class="tabs2 orig"><summary>原文（英語）</summary><div class="abs">${hl(x.abs,terms)}</div></details>`:''}</details>`:''}</li>`});
+      o.talks.forEach(x=>{const hit=filtering?match(x,terms):null;p+=`<li class="talk${hit===true?' hit':hit===false?' miss':''}"><span class="tc">${esc(x.code)}</span>${hl(x.title,terms)}${x.ja?`<div class="ja">${hl(x.ja,terms)}</div>`:''}${whoHTML(x,terms)}${tagsOf(x)}${(x.abs||x.abs_ja||x.absja)?`<details class="tabs2"><summary>要旨</summary><div class="abs">${hl(x.abs_ja||x.absja||x.abs,terms)}</div>${(x.abs_ja&&x.abs)?`<details class="tabs2 orig"><summary>原文（英語）</summary><div class="abs">${hl(x.abs,terms)}</div></details>`:''}</details>`:''}</li>`});
       $('sbody').innerHTML='<div class="sbin">'+p+'</ul></div>';$('sbody').dataset.kind=KIND[o.s.kind]||'';sh.hidden=false;
       const si=sh.firstElementChild;si.style.marginTop='0px';
       (()=>{const btn=out.querySelector(`.sess[aria-expanded="true"]`);const bb=document.getElementById('bbar');const vh=window.innerHeight-(bb?bb.offsetHeight:0),h=si.offsetHeight;let top; /* 下のバーに隠れない範囲で置く */
