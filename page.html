@@ -1,6 +1,6 @@
 <script>/*__BOOT__*/</script>
 <script>/* 文字サイズ（小・中・大）：最初に当てて、表示のちらつきを防ぐ */try{const f=localStorage.getItem('jshg2026fs');if(f==='s'||f==='l')document.documentElement.classList.add('fs-'+f)}catch(e){}try{if(localStorage.getItem('jshg2026dark')==='1')document.documentElement.classList.add('dark')}catch(e){}</script>
-<!-- 注意（本番=Apps Script経由の前処理）: JSの中に「//」をコメント以外で書かない（正規表現 /<\//g など）。「/」の割り算も「*0.5」のように掛け算で書く。誤って正規表現と解釈され、画面が真っ白になる -->
+<!-- 注意（本番=Apps Script経由の前処理）: JSの中に「//」をコメント以外で書かない（URL文字列も https:\/\/ のように書く）（正規表現 /<\//g など）。「/」の割り算も「*0.5」のように掛け算で書く。誤って正規表現と解釈され、画面が真っ白になる -->
 <script>document.documentElement.setAttribute('data-theme','light');</script>
 <title>JSHG2026 プログラム</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -1101,7 +1101,7 @@ body.pmode #dkB,body.mmode #dkB{display:inline-flex}
   {const tag=document.createElement('span');tag.className='roletag';tag.textContent=ROLE==='a'?'すいすい用':ROLE==='b'?'AT用':'閲覧用';const h=document.querySelector('#bar h1 .swlink');if(h)h.before(tag)}
   status.textContent=ROLE?'自分の印だけ付けられます':'閲覧用（印は付けられません）';
   /* 抄録（英語）は別ファイル abstracts.json（GitHub）から後読み。失敗しても画面はそのまま */
-  window.__absMap=null;const absUrl='https://raw.githubusercontent.com/suisuinaomasa0220-svg/jshg2026/main/abstracts.json';
+  window.__absMap=null;const absUrl='https:\/\/raw.githubusercontent.com/suisuinaomasa0220-svg/jshg2026/main/abstracts.json'; /* スラッシュ2つを続けて書かない（本番の前処理で壊れる） */
   (function(){if(typeof fetch!=='function')return;fetch(absUrl,{cache:'no-cache'}).then(r=>r.ok?r.json():null).then(mp=>{if(!mp)return;window.__absMap=mp;let n=0;items.forEach(i=>{if(mp[i.code]&&!i.abs){i.abs=mp[i.code];n++}});if(n&&openKey)render();if(window.__pvSetAbs)window.__pvSetAbs(mp)}).catch(()=>{})})();
   pull();setInterval(()=>{if(document.visibilityState==='visible'&&!openKey&&Date.now()-lastScroll>4000)pull()},45000);
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pull()});
@@ -1219,7 +1219,7 @@ body.pmode #dkB,body.mmode #dkB{display:inline-flex}
 </script>
 <script>
 (function(){
-  const NS='http://www.w3.org/2000/svg';let raf=0;
+  const NS='http:\/\/www.w3.org/2000/svg';let raf=0;
   const R0=(window.__BOOT__||{}).role||'';
   /* 初期値：自分のリンクなら自分=印＋動線、相手=非表示。共通リンクは両方表示。一度でも切り替えたらその設定を保持 */
   let SHOW=R0==='a'?{a:2,b:0}:R0==='b'?{a:0,b:2}:{a:2,b:2};try{const o=JSON.parse(localStorage.getItem('jshg2026routes_'+R0)||'null');if(o&&R0)for(const k of ['a','b'])if(k in o)SHOW[k]=o[k]===true?2:o[k]===false?0:(+o[k]||0)}catch(e){}
