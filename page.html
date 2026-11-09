@@ -944,7 +944,7 @@ details.orig[open]>summary::after{content:'閉じる ▴'}
   const TSEL=new Set();try{(JSON.parse(localStorage.getItem('jshg2026tags')||'[]')).forEach(k=>TSEL.add(k))}catch(e){}
   /* 要旨（abs / abs_ja）がデータに入れば自動的に検索・タグ照合の対象になる */
   const absTxt=i=>(i.abs||'')+' '+(i.abs_ja||i.absja||'');
-  const tagHit=(i,t)=>t.re.test(t.field==='affil'?(i.affil||''):t.field==='authors'?((i.speaker||'')+' '+(i.chairs||'')):(i.session+' '+(SJA[i.code.split('-')[0]]||'')+' '+i.title+' '+i.ja+' '+absTxt(i)));
+  const tagHit=(i,t)=>t.re.test(t.field==='affil'?((i.affil||'')+' '+(i.affils||[]).join(' ')):t.field==='authors'?((i.speaker||'')+' '+(i.authors||'')+' '+(i.chairs||'')):(i.session+' '+(SJA[i.code.split('-')[0]]||'')+' '+i.title+' '+i.ja+' '+absTxt(i)));
   const tagsOfTalk=i=>typeof TAGS==='undefined'?[]:TAGS.filter(t=>tagHit(i,t));
   const tagSum=()=>{const sel=TAGS.filter(t=>TSEL.has(t.key)).map(t=>t.label);$('tsum').textContent=sel.length===0?'なし（押して選ぶ）':sel.length===TAGS.length?'全部':sel.join('・')};
   function buildChips(){if(typeof TAGS==='undefined')return;chips.innerHTML='';tagSum();
@@ -960,7 +960,7 @@ details.orig[open]>summary::after{content:'閉じる ▴'}
   const tmin=t=>{const[a,b]=t.split('-')[0].split(':').map(Number);return a*60+b};
   const match=(i,terms)=>{
     if(langSel.value&&i.lang!==langSel.value)return false;
-    const hay=(i.session+' '+(SJA[i.code.split('-')[0]]||'')+' '+i.title+' '+i.ja+' '+i.speaker+' '+i.affil+' '+i.chairs+' '+i.code+' '+absTxt(i)).toLowerCase();
+    const hay=(i.session+' '+(SJA[i.code.split('-')[0]]||'')+' '+i.title+' '+i.ja+' '+i.speaker+' '+(i.authors||'')+' '+i.affil+' '+(i.affils||[]).join(' ')+' '+i.chairs+' '+i.code+' '+absTxt(i)).toLowerCase();
     if(!terms.every(t=>hay.includes(t.toLowerCase())))return false;
     if(TSEL.size&&typeof TAGS!=='undefined'){const ts=TAGS.filter(t=>TSEL.has(t.key));if(!ts.some(t=>tagHit(i,t)))return false}
     return true;
