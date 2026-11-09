@@ -1906,4 +1906,19 @@ render();
   b.addEventListener('click',()=>set(!r.classList.contains('open')));
 })();
 </script>
+<script>
+/* 詳細フロート：要旨などを開いて中身が伸びたら、画面下にはみ出さないよう位置と高さを合わせ直す */
+(function(){
+  const sh=document.getElementById('sheet'),sb=document.getElementById('sbody');if(!sh||!sb)return;
+  const si=sh.firstElementChild;
+  function fit(){if(sh.hidden)return;const bb=document.getElementById('bbar');const vh=window.innerHeight-(bb?bb.offsetHeight:0);
+    const prev=si.style.maxHeight;si.style.maxHeight='none';const need=si.offsetHeight;
+    let top=parseFloat(si.style.marginTop)||12;if(top+need>vh-12)top=Math.max(12,vh-12-need);
+    si.style.marginTop=Math.round(top)+'px';si.style.maxHeight=Math.max(160,Math.round(vh-12-top))+'px'}
+  sb.addEventListener('toggle',()=>{requestAnimationFrame(fit)},true);
+  window.addEventListener('resize',()=>{requestAnimationFrame(fit)});
+  new MutationObserver(()=>{setTimeout(fit,450)}).observe(sb,{childList:true});
+  new MutationObserver(()=>{if(sh.hidden)si.style.maxHeight=''}).observe(sh,{attributes:true,attributeFilter:['hidden']});
+})();
+</script>
 </body></html>
