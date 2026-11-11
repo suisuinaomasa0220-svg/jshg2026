@@ -9,3 +9,8 @@
 - 元: jshg2026_abstract.pdf（開封パスワード付き。復号後に extract.py → parse_abs.py）
 - 出力: リポジトリ直下 abstracts.json（code → 英語抄録、681件）。page.html が raw.githubusercontent.com から後読みして、シンポジウム画面の「要旨」とポスター詳細の「抄録」に表示し、ポスターのタグ判定にも使う
 - 日本語訳は未付与（abs_ja を足せば画面側はそのまま優先表示する）
+
+## 2026-11-11 本体の軽量化
+- page.html に埋め込んでいた演題データ・ポスター・分析データを data/data.json, data/posters.json, data/mapdata.json に分離（page.html 905KB→約195KB）
+- page.html の画面スクリプトは type="text/x-app" で置いておき、末尾のローダーが3つのJSONを読み込んでから順に実行する（DOMContentLoaded も読み込み後に発火し直す）
+- データを直したら：data/*.json を更新し、page.html ローダー内の V（版番号）を変える（キャッシュ対策）
