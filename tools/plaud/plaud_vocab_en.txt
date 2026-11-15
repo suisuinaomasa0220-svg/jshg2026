@@ -1,0 +1,188 @@
+GWAS
+PRS
+polygenic risk score
+VUS
+ACMG/AMP
+ClinVar
+ClinGen
+HPO
+AlphaMissense
+AlphaFold2
+REVEL
+WGS
+WES
+RNA-seq
+LRS
+long-read sequencing
+PacBio
+HiFi
+Oxford Nanopore
+NovaSeq
+T2T
+MLPA
+SNV
+CNV
+eQTL
+k-mer
+pseudoexon
+antisense oligonucleotide
+ASO
+N-of-1
+loss-of-function
+hemizygous
+epigenome
+chromatin accessibility
+spatial transcriptomics
+multi-omics
+metabolome
+CRISPR/Cas9
+iPSC
+LLM
+BioBank Japan
+UK Biobank
+GeMJ
+AMED
+ASHG
+HLA
+CHIP
+clonal hematopoiesis
+G×E
+missing heritability
+congenital heart disease
+genomic imprinting
+ALS
+ropinirole
+ROPALS
+ALSFRS-R
+SREBP2
+CDKAL1
+MELAS
+MERRF
+N6-methyladenosine
+NKTCL
+IL18RAP
+HLA-DRB1
+Qinghai-Tibet Plateau
+hereditary spastic paraplegia
+4SMD
+Gower distance
+SPAST
+SPG11
+ATL1
+KIF1A
+REEP1
+DMD
+PhenoScore
+phenomics
+ANKRD11
+PP4
+ATRX
+POU3F3
+SNUPN
+spinocerebellar ataxia
+Purkinje
+spliceosome
+LRP12
+NOTCH2NLC
+MAPT
+GLA
+Fabry disease
+splice-switching oligonucleotide
+ALDH2
+ADH1B
+acetaldehyde
+haplogroup
+HOR
+alpha satellite
+cardiomyopathy
+microglia
+URST1
+URST4
+NSCLC
+KRAS
+TP53
+PTEN
+BRAF
+EGFR
+osimertinib
+RMC-6236
+DepMap
+CCLE
+JuncBASE
+YAP1
+SCRIB
+MEN1
+retinitis pigmentosa
+EYS
+ADGRV1
+REEP6
+HDLBP
+OPDM
+oculopharyngodistal myopathy
+GIPC1
+polyglycine
+RAN translation
+cell-free RNA
+SFTPC
+CALML5
+EOPC
+CUX1
+BRCA2
+EGM
+electronic genome mapping
+OGM
+optical genome mapping
+C9orf72
+DMPK
+FMR1
+FXN
+Bruce D. Gelb
+Anne Ferguson-Smith
+Hideyuki Okano
+Hidehiro Mizusawa
+Fan-Yan Wei
+Jinxin Bei
+Xiaowei Mao
+Jong Ho Cha
+Man Jin Kim
+Yoshiaki Usui
+Shinichi Namba
+Marylyn D. Ritchie
+Alexander J. M. Dingemans
+Tadashi Kaname
+Hirotomo Saitsu
+Takeshi Mizuguchi
+Mariko Okubo
+Koyo Tsujikawa
+Tomonari Awaya
+Kyuto Sonehara
+Yuriko Koyanagi
+Yuichi Shiraishi
+Yoshihiro Asano
+Tatsuhiko Naito
+Atsushi Takano
+Miku Soeda
+Taiki Abe
+Akane Naruoka
+Hoa Thi Nguyen
+Mario Bernabeu Aracil
+Alka Chaubey
+Kensuke Goto
+Nobuyuki Eura
+Chiaki Eishi
+Taito Itoh
+Yoko Aoki
+Kenichiro Hata
+Masashi Aoki
+Kenjiro Kosaki
+Masahiro Hiratsuka
+Naomichi Matsumoto
+Jong Hee Chae
+Yoichiro Kamatani
+Yukinori Okada
+Akira Hirasawa
+Yukihide Momozawa
+Tetsuya Niihori
+Ayako Suzuki
+Yutaka Suzuki
+Michiaki Hamada
