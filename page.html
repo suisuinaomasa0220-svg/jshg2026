@@ -648,7 +648,6 @@ h1 .roletag+.vnav,#pv .hd .vnav,#mp .hd .vnav{margin-left:auto}
 body.mmode>.wrap,body.mmode #bbar,body.mmode .hbar,body.mmode::after{display:none!important}
 #mp{background:var(--bg);color:var(--fg);font-family:var(--font);min-height:100vh}
 #mp .wrap{max-width:900px;margin:0 auto;padding:12px max(16px,env(safe-area-inset-left,0px)) 40px}
-#mp .mockbanner{font-size:.72rem;font-weight:600;color:#72243e;background:#f3e4e9;border-radius:10px;padding:6px 10px;margin:4px 0 8px}
 #mp .bar{position:sticky;top:0;z-index:5;background:#fbf6f7;display:flex;flex-direction:column;gap:8px;padding-block:8px;box-shadow:0 6px 12px -10px rgba(40,45,120,.35)}
 #mp .hd{display:flex;align-items:center;gap:6px;margin:0}
 #mp h1 .y{width:36px;height:36px;border-radius:9px;transform:rotate(-3deg);box-shadow:0 2px 6px -2px rgba(40,20,30,.4)}
@@ -796,7 +795,7 @@ body.role-b #pv .foot .memo-n{order:3}
   #pv .list{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:8px;align-items:start}
   /* 分析：左に地図（画面の高さに合わせる）、右に凡例と詳細カード */
   #mp .wrap{max-width:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,400px);column-gap:14px;align-items:start}
-  #mp .wrap>.mockbanner,#mp .wrap>.bar{grid-column:1 / -1}
+  #mp .wrap>.bar{grid-column:1 / -1}
   #mp .bar{flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 10px}
   #mp .bar>h1{flex:none;margin:0}
   #mp .bar>#mmode{flex:1 1 360px;width:auto;min-width:0}
@@ -1364,7 +1363,6 @@ details.orig[open]>summary::after{content:'閉じる ▴'}
 </div>
 <div id="mp" hidden>
 <div class="wrap">
-  <div class="mockbanner">演題名＋英語抄録から自動で配置・分類しています（11/4版プログラム）。まとまりの名前はあくまで目安です。</div>
   <div class="bar">
     <h1 class="hd"><img class="y" src="https://raw.githubusercontent.com/suisuinaomasa0220-svg/jshg2026/main/icon-192.png" alt="JSHG" width="36" height="36"><nav class="swlink vnav" aria-label="画面の切替"><a data-v="tt" href="#jikanwari">シンポジウム</a><a data-v="pv" href="#poster">ポスター</a><a data-v="mp" href="#map" aria-current="page">分析</a></nav></h1>
     <div class="vseg mseg" id="mmode"><button type="button" data-m="ts" aria-pressed="true">似ている順（t-SNE）</button><button type="button" data-m="pc" aria-pressed="false">全体傾向（PCA）</button></div>
